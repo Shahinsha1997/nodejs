@@ -5,7 +5,7 @@ const host = '0.0.0.0';
 const server =  http.createServer((req,res)=>{
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
-  res.end('Zeet Node');
+  res.end('Zeet Hellwo updated Node');
 })
 
 server.listen(port, host, ()=>{
