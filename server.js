@@ -19,7 +19,7 @@ io.on('connection',
         socket.on('addAppointment',
         (newMessage) => {
             console.log('newMessage', newMessage);
-            socket.emit('newAppointment');
+            io.emit('newAppointment');
         });
         // listen for message from user
         socket.on('createMessage',
