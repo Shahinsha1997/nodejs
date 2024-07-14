@@ -16,7 +16,11 @@ io.on('connection',
                 text: 'hepppp',
                 createdAt: 123
             });
-
+        socket.on('addAppointment',
+        (newMessage) => {
+            console.log('newMessage', newMessage);
+            socket.emit('newAppointment');
+        });
         // listen for message from user
         socket.on('createMessage',
             (newMessage) => {
