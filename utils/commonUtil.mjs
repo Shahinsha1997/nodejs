@@ -31,6 +31,10 @@ export const ERROR_MESSAGES = {
         status: 409,
         message: 'Organization name already exist'
     },
+    USER_NAME_EXIST:{
+        status: 409,
+        message: 'Username already exist'
+    },
     MAX_SESSION_LIMIT_ERROR:{
         status: 400,
         message:`Maximum ${MAX_SESSION_LIMIT} sessions are allowed`
@@ -44,10 +48,10 @@ export const SUCCESS_MESSAGES = {
     TABLE_NOT_CREATED : "Table doesn't created properly",
     TABLE_CREATED : 'Tables created successfully',
     ORG_CREATED : 'Organization created successfully',
-    PROFILE_NOT_CREATED: "Profile doesn't created successfully",
     PROFILE_CREATED: 'Profile created successfully',
     ACCOUNT_CREATED: 'Account created successfully',
-    ACCOUNT_NOT_CREATED: "Account doesn't created successfully"
+    ACCOUNT_NOT_CREATED: "Account doesn't created successfully",
+    DEPARTMENT_CREATED: 'Department created successfully',
 }
 
 
@@ -55,4 +59,11 @@ export const SUCCESS_MESSAGES = {
 export const sendResponse = (res, obj=ERROR_MESSAGES['INTERNAL_SERVER_ERROR'])=>{
     res.status(obj.status);
     res.end(convertResAsStr(obj));
+}
+
+export const parseFromLimit = (obj)=>{
+    let { from, limit=50 } = obj;
+    limit = parseInt(limit) > 50 ? 50 : limit;
+    const to = parseInt(from) + parseInt(limit);
+    return { from, to};
 }

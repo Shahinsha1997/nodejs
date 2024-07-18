@@ -1,7 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import { createWebSocket } from './websocket/websocketconfig.mjs';
-import { createAccountAPI, createOrgAPI, createProfileAPI, createUserTablesAPI } from './userApiActions.mjs';
+import { createAccountAPI, createDepartmentAPI, createOrgAPI, createProfileAPI, createUserTablesAPI, getAccessibleDeptListAPI, getDepartmentListAPI, getProfileListAPI, getUsersListAPI, login } from './userApiActions.mjs';
 const port = process.env.PORT || 3000
 var app = express();
 app.use(express.json());
@@ -20,10 +20,26 @@ app.get("/",
 //     res.end(getResponse(databases))
 // })
 
+app.post('/login', login)
 app.post('/createOrg', createOrgAPI)
 // app.post('/updateOrg', createOrgAPI)
 app.post('/createUserTables', createUserTablesAPI)
-app.post('/createprofile', createProfileAPI)
+
+app.get('/users', getUsersListAPI)
+app.get('/users/:userId',getUsersListAPI)
+
+app.post('/profiles', createProfileAPI)
+app.get('/profiles', getProfileListAPI)
+app.get('/profiles/:profileId', getProfileListAPI)
+
+
+app.post('/departments', createDepartmentAPI); 
+app.get('/departments', getDepartmentListAPI)
+app.get('/departments/:departmentId', getDepartmentListAPI)
+
+app.get('/accessibledepartments', getAccessibleDeptListAPI)
+app.get('/accessibledepartments/:departmentId', getAccessibleDeptListAPI)
+
 
 app.post('/createAccount', createAccountAPI)
 
