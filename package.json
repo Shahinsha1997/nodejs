@@ -1,12 +1,17 @@
 {
   "name": "nodeproject",
   "version": "1.0.0",
+  "type": "module",
   "description": "My Node project",
   "scripts": {
-    "start": "node server.js"
+    "start": "nodemon server.js"
   },
   "dependencies": {
+    "@libsql/client": "^0.7.0",
+    "@tursodatabase/api": "^1.8.1",
+    "bcrypt": "^5.1.1",
     "express": "^4.19.2",
+    "nodemon": "^3.1.4",
     "socket.io": "^4.5.4"
   }
 }

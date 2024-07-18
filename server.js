@@ -1,39 +1,13 @@
-const express = require('express');
-const socketIO = require('socket.io');
-const http = require('http')
+import express from 'express';
+import { createServer } from 'http';
+import { createWebSocket } from './websocket/websocketconfig.mjs';
+import { createAccountAPI, createOrgAPI, createProfileAPI, createUserTablesAPI } from './userApiActions.mjs';
 const port = process.env.PORT || 3000
 var app = express();
-let server = http.createServer(app);
-var io = socketIO(server);
+app.use(express.json());
+const server = createServer(app);
 const host = '0.0.0.0';
-io.on('connection',
-    (socket) => {
-        console.log('New user connected');
-        //emit message from server to user
-        socket.emit('newMessage',
-            {
-                from: 'jen@mds',
-                text: 'hepppp',
-                createdAt: 123
-            });
-        socket.on('addAppointment',
-        (newMessage) => {
-            console.log('newMessage', newMessage);
-            io.emit('newAppointment');
-        });
-        // listen for message from user
-        socket.on('createMessage',
-            (newMessage) => {
-                console.log('newMessage', newMessage);
-            });
-
-        // when server disconnects from user
-        socket.on('disconnect',
-            () => {
-                console.log('disconnected from user');
-            });
-    });
-
+createWebSocket(server);
 app.get("/",
     (req, res) => {
       res.statusCode = 200;
@@ -41,6 +15,20 @@ app.get("/",
       res.end('Zeet Hellow updated Node');
     });
 
+// app.get("/getDB",async (req,res)=>{
+//     const databases = await turso.databases.list();
+//     res.end(getResponse(databases))
+// })
+
+app.post('/createOrg', createOrgAPI)
+// app.post('/updateOrg', createOrgAPI)
+app.post('/createUserTables', createUserTablesAPI)
+app.post('/createprofile', createProfileAPI)
+
+app.post('/createAccount', createAccountAPI)
+
 server.listen(port, host, ()=>{
   console.log(`Server running at http://${host}:${port}/`);
 });
+
+
