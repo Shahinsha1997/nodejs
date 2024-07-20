@@ -12,6 +12,7 @@
     "bcrypt": "^5.1.1",
     "express": "^4.19.2",
     "nodemon": "^3.1.4",
-    "socket.io": "^4.5.4"
+    "socket.io": "^4.5.4",
+    "useragent": "^2.3.0"
   }
 }

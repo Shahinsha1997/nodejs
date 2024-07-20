@@ -48,10 +48,13 @@ export const SUCCESS_MESSAGES = {
     TABLE_NOT_CREATED : "Table doesn't created properly",
     TABLE_CREATED : 'Tables created successfully',
     ORG_CREATED : 'Organization created successfully',
+    ORG_UDPATED : 'Organization updated successfully',
+    USER_UDPATED : 'User updated successfully',
     PROFILE_CREATED: 'Profile created successfully',
     ACCOUNT_CREATED: 'Account created successfully',
     ACCOUNT_NOT_CREATED: "Account doesn't created successfully",
     DEPARTMENT_CREATED: 'Department created successfully',
+    DEPT_ACCESS_GRANTED: 'Department access updated successfully'
 }
 
 

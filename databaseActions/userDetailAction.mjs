@@ -1,5 +1,5 @@
 import { getUserManagementDB } from "../utils/dbUtils.mjs";
-import { insertOrgQuery, getOrgByNameQuery, tableDetails, userTables, insertProfileQuery, getOrgByIDQuery, insertUserQuery, insertDeptQuery, insertDeptAccessQuery, getUserByNameQuery, getProfileListQuery, getUsersListQuery, getUserQuery, getProfileQuery, getDeptListQuery, getDeptQuery, getAccessibleDeptListQuery, getAccesibleDeptQuery } from "../utils/tableDetails.mjs";
+import { insertOrgQuery, getOrgByNameQuery, tableDetails, userTables, insertProfileQuery, getOrgByIDQuery, insertUserQuery, insertDeptQuery, insertDeptAccessQuery, getUserByNameQuery, getProfileListQuery, getUsersListQuery, getUserQuery, getProfileQuery, getDeptListQuery, getDeptQuery, getAccessibleDeptListQuery, getAccesibleDeptQuery, insertDeptsAccessQuery, updateDeptQuery, deleteDeptQuery, isAccessibleDeptQuery, revokeAccessDeptQuery, updateOrgQuery, updateUserQuery, insertUserSessionQuery } from "../utils/tableDetails.mjs";
 
 const userDBQueries = async (query)=>{
     const userManagementDB =  await getUserManagementDB();
@@ -15,6 +15,9 @@ const userDBBatchQueries = async (queries) =>{
 }
 export const createOrg = async (orgName)=>{
     return await userDBQueries(insertOrgQuery(orgName))
+}
+export const updateOrg = async ({orgId, values})=>{
+    return await userDBQueries(updateOrgQuery({orgId, values}))
 }
 export const getOrganizaitonByID = async (orgId) =>{
     return await userDBQueries(getOrgByIDQuery(orgId));
@@ -58,6 +61,14 @@ export const getUser = async ({orgId, userId}) =>{
     const result = await userDBQueries(getUserQuery({orgId, userId}));
     return result.rows;
 }
+export const addUser = async (props) =>{
+    const result = await userDBQueries(insertUserQuery(props));
+    return result.rows;
+}
+export const updateUser = async ({userId, values}) =>{
+    const result = await userDBQueries(updateUserQuery({userId, values}));
+    return result.rows;
+}
 
 
 export const createProfile = async ({profileName, orgId, orgName, permissions})=>{
@@ -82,12 +93,36 @@ export const getDepartment = async ({orgId, deptId}) =>{
     const result = await userDBQueries(getDeptQuery({orgId, deptId}));
     return result.rows;
 }
-export const getAccessibleDeptList = async ({orgId, from, to}) =>{
-    const result = await userDBQueries(getAccessibleDeptListQuery({orgId, from, to}));
+export const updateDept = async ({deptId, values})=>{
+    console.log(updateDeptQuery({deptId, values}))
+    const result = await userDBQueries(updateDeptQuery({deptId, values}));
+    return result.rows;
+}
+export const deleteDept = async ({deptId})=>{
+    const result = await userDBQueries(deleteDeptQuery({deptId}));
+    return result.rows;
+}
+export const getAccessibleDeptList = async ({from, to, userId}) =>{
+    const result = await userDBQueries(getAccessibleDeptListQuery({from, to, userId}));
     return result.rows;
 }
 export const getAccessibleDepartment = async ({userId, deptId}) =>{
     const result = await userDBQueries(getAccesibleDeptQuery({userId, deptId}));
+    return result.rows;
+}
+export const addSessionDetails = async ({userAgent, userId})=>{
+    const result = await userDBQueries(insertUserSessionQuery({userId, userAgent}));
+    return result.rows;
+}
+export const isAccesibleDeptList = async ({deptList, userId})=>{
+    const result = await userDBQueries(isAccessibleDeptQuery({userId, deptList}));
+    return result.rows;
+}
+export const updadteAccessibleDepartments = async ({userId, revokeDeptIds, addDeptIds})=>{
+    const queries = [];
+    addDeptIds.length > 0 && queries.push(insertDeptsAccessQuery(addDeptIds))
+    revokeDeptIds.length > 0 && queries.push(revokeAccessDeptQuery({userId, deptIds:revokeDeptIds}))
+    const result = queries.length > 0 ? await userDBBatchQueries(queries) : {rows:[]};
     return result.rows;
 }
 export const createAccount = async (args) =>{
