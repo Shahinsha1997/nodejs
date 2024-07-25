@@ -3,6 +3,10 @@ export const tableDetails = {
     orgTable: `CREATE TABLE organizations (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
         orgName VARCHAR(255) NOT NULL UNIQUE,
+        maxDept INTEGER NOT NULL DEFAULT 2,
+        maxProfiles INTEGER NOT NULL DEFAULT 5,
+        maxSessionLimit INTEGER NOT NULL DEFAULT 3,
+        maxSessionTime INTEGER NOT NULL DEFAULT 72,
         isDisabledOrg BOOLEAN NOT NULL DEFAULT FALSE
       );`,
     userProfileTable : `CREATE TABLE
@@ -10,7 +14,7 @@ export const tableDetails = {
       ID INTEGER PRIMARY KEY AUTOINCREMENT,
       orgID INTEGER NOT NULL,
       profileName VARCHAR(255) NOT NULL,
-      permissions INTEGER NOT NULL,
+      permissions VARCHAR(255) NOT NULL,
       FOREIGN KEY (orgID) REFERENCES organizations (ID) ON DELETE CASCADE
     );`,
     userTable: `CREATE TABLE users (
@@ -68,6 +72,7 @@ const PROFILE_TABLE = 'user_profile'
 export const getProfIdByNameAndOrgId = (orgName, profileName)=> `SELECT ID from ${PROFILE_TABLE} WHERE orgID='${getOrgIdByName(orgName)}' AND profileName='${profileName}' `
 export const getProfileListQuery = ({orgId, from, to}) => `SELECT * from ${PROFILE_TABLE} WHERE orgID = '${orgId}' BETWEEN ${from} AND ${to}`
 export const getProfileQuery = ({orgId, profileId}) => `SELECT * from ${PROFILE_TABLE} WHERE orgID = '${orgId}' AND ID = ${profileId}`
+export const getProfileCountQuery = ({orgId}) => `SELECT count(*) as count FROM ${PROFILE_TABLE} WHERE orgId = ${orgId};`;
 export const insertProfileQuery = ({orgId, profileName, permissions}) => `INSERT INTO ${PROFILE_TABLE} (orgID, profileName,permissions) VALUES ('${orgId}','${profileName}','${permissions}');`
 
 
@@ -82,12 +87,15 @@ export const updateUserQuery = ({values, userId})=> `UPDATE ${USERS_TABLE} SET $
 //User Session Queries
 const USER_SESSION_TABLE = 'session_details';
 export const insertUserSessionQuery = ({userAgent, userId}) => `INSERT INTO ${USER_SESSION_TABLE} (userId, userAgent) VALUES ('${userId}','${userAgent}');`
-
+export const getSessionCountQuery = ({userId}) => `SELECT count(*) as count FROM ${USER_SESSION_TABLE} WHERE userId = ${userId}`;
+export const getSessionDetailsQuery = ({userId}) => `SELECT * from ${USER_SESSION_TABLE} WHERE userId = ${userId}`;
+export const deleteSession = ({sessionId}) => `DELETE FROM ${USER_SESSION_TABLE} WHERE ID = ${sessionId};`
 //Department Queries
 const DEPT_TABLE = 'departments'
 export const insertDeptQuery = ({orgId, deptName}) => `INSERT INTO ${DEPT_TABLE} (orgID, deptName) VALUES ('${orgId}','${deptName}');`
 export const getDeptListQuery = ({orgId, from, to}) => `SELECT * FROM ${DEPT_TABLE} WHERE orgId = ${orgId} BETWEEN ${from} AND ${to};`
 export const getDeptQuery = ({orgId, deptId}) => `SELECT * FROM ${DEPT_TABLE} WHERE u.orgId = ${orgId} AND ID = ${deptId};`;
+export const getDeptCountQuery = ({orgId}) => `SELECT count(*) as count FROM ${DEPT_TABLE} WHERE orgId = ${orgId};`;
 export const updateDeptQuery = ({deptId, values}) => `UPDATE ${DEPT_TABLE} SET ${values} WHERE ID=${deptId};`
 export const deleteDeptQuery = ({deptId}) => `DELETE FROM ${DEPT_TABLE} WHERE ID=${deptId};`
 
@@ -153,4 +161,12 @@ export const getEncryptedPassword = async (password) =>{
 }
 export const isPasswordMatch = async (password, realPassword) =>{
   return await bcrypt.compare(password, realPassword);
+}
+
+export const getUserSessionDetails = (session, type='user') =>{
+    const objTypes = {
+      'user' : 'userObj',
+      'org' : 'orgObj'
+    }
+    return session[objTypes[type]];
 }

@@ -1,5 +1,5 @@
 import { getUserManagementDB } from "../utils/dbUtils.mjs";
-import { insertOrgQuery, getOrgByNameQuery, tableDetails, userTables, insertProfileQuery, getOrgByIDQuery, insertUserQuery, insertDeptQuery, insertDeptAccessQuery, getUserByNameQuery, getProfileListQuery, getUsersListQuery, getUserQuery, getProfileQuery, getDeptListQuery, getDeptQuery, getAccessibleDeptListQuery, getAccesibleDeptQuery, insertDeptsAccessQuery, updateDeptQuery, deleteDeptQuery, isAccessibleDeptQuery, revokeAccessDeptQuery, updateOrgQuery, updateUserQuery, insertUserSessionQuery } from "../utils/tableDetails.mjs";
+import { insertOrgQuery, getOrgByNameQuery, tableDetails, userTables, insertProfileQuery, getOrgByIDQuery, insertUserQuery, insertDeptQuery, insertDeptAccessQuery, getUserByNameQuery, getProfileListQuery, getUsersListQuery, getUserQuery, getProfileQuery, getDeptListQuery, getDeptQuery, getAccessibleDeptListQuery, getAccesibleDeptQuery, insertDeptsAccessQuery, updateDeptQuery, deleteDeptQuery, isAccessibleDeptQuery, revokeAccessDeptQuery, updateOrgQuery, updateUserQuery, insertUserSessionQuery, getDeptCountQuery, getProfileCountQuery, getSessionCountQuery, deleteSession, getSessionDetailsQuery } from "../utils/tableDetails.mjs";
 
 const userDBQueries = async (query)=>{
     const userManagementDB =  await getUserManagementDB();
@@ -20,13 +20,15 @@ export const updateOrg = async ({orgId, values})=>{
     return await userDBQueries(updateOrgQuery({orgId, values}))
 }
 export const getOrganizaitonByID = async (orgId) =>{
-    return await userDBQueries(getOrgByIDQuery(orgId));
+    const results = await userDBQueries(getOrgByIDQuery(orgId));
+    return results.rows[0];
 }
 export const getOrganizaitonByName = async (orgName)=>{
     return await userDBQueries(getOrgByNameQuery(orgName));
 }
 export const getUserByUserName = async (userName)=>{
-    return await userDBQueries(getUserByNameQuery(userName));
+    const results = await userDBQueries(getUserByNameQuery(userName));
+    return results.rows[0]
 }
 export const isDuplicateModuleFound =async ({moduleType, moduleName}) =>{
     const duplicateConfig = {
@@ -45,6 +47,10 @@ export const isDuplicateModuleFound =async ({moduleType, moduleName}) =>{
          throw duplicateObj.isDuplicateMessage
     }
     return;
+}
+export const getLoggedInSession = async (userId) =>{
+    const result = await userDBQueries(getSessionCountQuery({userId}));
+    return result.rows;
 }
 export const createUserTables = async ()=>{
     const queryList = [];
@@ -80,6 +86,10 @@ export const getProfileList = async ({orgId, from, to}) =>{
 }
 export const getProfile = async ({orgId, profileId}) =>{
     const result = await userDBQueries(getProfileQuery({orgId, profileId}));
+    return result.rows[0];
+}
+export const getProfileCount = async ({orgId}) =>{
+    const result = await userDBQueries(getProfileCountQuery({orgId}));
     return result.rows;
 }
 export const createDepartment = async ({deptName, orgId})=>{
@@ -91,6 +101,10 @@ export const getDeptList = async ({orgId, from, to}) =>{
 }
 export const getDepartment = async ({orgId, deptId}) =>{
     const result = await userDBQueries(getDeptQuery({orgId, deptId}));
+    return result.rows[0];
+}
+export const getDepartmentCount = async ({orgId}) =>{
+    const result = await userDBQueries(getDeptCountQuery({orgId}));
     return result.rows;
 }
 export const updateDept = async ({deptId, values})=>{
@@ -108,11 +122,18 @@ export const getAccessibleDeptList = async ({from, to, userId}) =>{
 }
 export const getAccessibleDepartment = async ({userId, deptId}) =>{
     const result = await userDBQueries(getAccesibleDeptQuery({userId, deptId}));
-    return result.rows;
+    return result.rows[0];
 }
 export const addSessionDetails = async ({userAgent, userId})=>{
     const result = await userDBQueries(insertUserSessionQuery({userId, userAgent}));
+    return result.lastInsertRowid;
+}
+export const getSessionDetails = async ({userId})=>{
+    const result = await userDBQueries(getSessionDetailsQuery({userId}));
     return result.rows;
+}
+export const deleteSessionDetails = async ({sessionId})=>{
+    return await userDBQueries(deleteSession({sessionId}));
 }
 export const isAccesibleDeptList = async ({deptList, userId})=>{
     const result = await userDBQueries(isAccessibleDeptQuery({userId, deptList}));
@@ -124,6 +145,16 @@ export const updadteAccessibleDepartments = async ({userId, revokeDeptIds, addDe
     revokeDeptIds.length > 0 && queries.push(revokeAccessDeptQuery({userId, deptIds:revokeDeptIds}))
     const result = queries.length > 0 ? await userDBBatchQueries(queries) : {rows:[]};
     return result.rows;
+}
+export const isDeptLimitReached = async ({orgId})=>{
+    const orgDetails = await getOrganizaitonByID(orgId);
+    const [{count: deptCount}] = await getDepartmentCount({orgId});
+    return orgDetails.maxDeptLimit <= deptCount
+}
+export const isProfileLimitReached = async ({orgId})=>{
+    const orgDetails = await getOrganizaitonByID(orgId);
+    const [{count: profileCount}] = await getProfileCount({orgId});
+    return orgDetails.maxProfileLimit <= profileCount
 }
 export const createAccount = async (args) =>{
     const { 
@@ -177,10 +208,9 @@ export const createAccount = async (args) =>{
 
 export const loginUser = async (userName)=>{
     try{
-    const results = await getUserByUserName(userName)
-    console.log(results);
-        if(results.rows.length > 0) {
-            return results.rows[0];
+        const userObj = await getUserByUserName(userName)
+        if(userObj) {
+            return userObj;
         }
         throw 'UNAUTHORIZED_ACCESS'
     }catch(e){

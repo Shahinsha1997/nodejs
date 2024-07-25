@@ -11,6 +11,7 @@
     "@tursodatabase/api": "^1.8.1",
     "bcrypt": "^5.1.1",
     "express": "^4.19.2",
+    "express-session": "^1.18.0",
     "nodemon": "^3.1.4",
     "socket.io": "^4.5.4",
     "useragent": "^2.3.0"

@@ -1,9 +1,19 @@
 import { HR_IN_MS, MAX_SESSION_LIMIT, MAX_SESSION_TIME } from "./tableDetails.mjs";
-
 export const convertResAsStr =(obj) =>{
     return JSON.stringify(obj);
 }
-
+export const selectn = (key,obj={}) =>{
+    var keyArr = key.split(".");
+    var returnVal = obj
+    for(let i=0;i<keyArr.length;i++){
+      returnVal = returnVal[keyArr[i]]
+      if(typeof returnVal == 'undefined'){
+        break;
+      }
+    }
+    return returnVal;
+  }
+  
 
 export const INTERNAL_SERVER_ERROR = 500
 export const UNAUTHORIZED_ACCESS = 401
@@ -43,18 +53,33 @@ export const ERROR_MESSAGES = {
         status: 400,
         message:`Maximum ${MAX_SESSION_TIME/(HR_IN_MS)} hours are allowed`
     },
+    MAX_DEPT_REACHED:{
+        status:400,
+        message: `Maximum allowed departments created.`
+    },
+    MAX_PROFILE_REACHED:{
+        status:400,
+        message: `Maximum allowed profiles created.`
+    },
+    MAX_SESSION_REACHED: {
+        status: 400,
+        message: 'Maximum allowed session reached.'
+    }
 };
 export const SUCCESS_MESSAGES = {
     TABLE_NOT_CREATED : "Table doesn't created properly",
     TABLE_CREATED : 'Tables created successfully',
     ORG_CREATED : 'Organization created successfully',
     ORG_UDPATED : 'Organization updated successfully',
+    USER_ADDED : 'User added successfully',
     USER_UDPATED : 'User updated successfully',
     PROFILE_CREATED: 'Profile created successfully',
     ACCOUNT_CREATED: 'Account created successfully',
     ACCOUNT_NOT_CREATED: "Account doesn't created successfully",
     DEPARTMENT_CREATED: 'Department created successfully',
-    DEPT_ACCESS_GRANTED: 'Department access updated successfully'
+    DEPT_ACCESS_GRANTED: 'Department access updated successfully',
+    SESSION_DELETED: 'Session revoked successfully',
+    LOGOUT_SUCCESS: 'Logout successfully'
 }
 
 
@@ -69,4 +94,32 @@ export const parseFromLimit = (obj)=>{
     limit = parseInt(limit) > 50 ? 50 : limit;
     const to = parseInt(from) + parseInt(limit);
     return { from, to};
+}
+export const hasPermission = (permissions,permissionName) => {
+    // Org - View/ Create / Update
+    // Profile - View/ Add / Edit / Delete
+    // Department -View/ Add / Edit/ Delete
+    // Users - View / Add/ Edit / Delete
+    // Stock - View / Add / Edit / Delete 
+    // Sale - View / Add / Edit / Delete
+    const permissionArr = [
+        'viewAdminPanel',
+        'viewOrg','addOrg','editOrg','deleteOrg',
+        'viewProfile','addProfilt','editProfilt','deleteProfile',
+        'viewDept','addDept','editDept','deleteDept',
+        'viewUser','addUser','editUser','deletUser',
+        'viewStock','addStock','editStock','deleteStock',
+        'viewSale','addSale','editSale','deleteSale'
+    ];
+    const permissionIndex = permissionArr.indexOf(permissionName);
+    console.log(permissionName, permissionIndex, permissions)
+    return permissions[permissionIndex] == 1;
+}
+
+
+export const setSessionDetails = (sessionDetails, userId, userDetails) =>{
+    if(!sessionDetails.userId){
+        sessionDetails.userId = {};
+    }
+    sessionDetails[userId] = {...sessionDetails.userId, userDetails};
 }

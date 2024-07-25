@@ -1,18 +1,26 @@
 import express from 'express';
 import { createServer } from 'http';
 import { createWebSocket } from './websocket/websocketconfig.mjs';
-import { addUserAPI, createAccountAPI, createDepartmentAPI, createOrgAPI, createProfileAPI, createUserTablesAPI, deleteDepartmentAPI, getAccessibleDeptListAPI, getDepartmentListAPI, getProfileListAPI, getUsersListAPI, login, updateDepartmentAPI, updateDeptToUser, updateUserAPI, updateeOrgAPI } from './userApiActions.mjs';
-const port = process.env.PORT || 3000
+import session from 'express-session'
+import { addUserAPI, beforeAllAPI, createAccountAPI, createDepartmentAPI, createOrgAPI, createProfileAPI, createUserTablesAPI, deleteDepartmentAPI, deleteSessionDetailsAPI, getAccessibleDeptListAPI, getDepartmentListAPI, getOrgAPI, getProfileListAPI, getSessionDetailsAPI, getUsersListAPI, login, logout, updateDepartmentAPI, updateDeptToUser, updateOrgAPI, updateUserAPI } from './userApiActions.mjs';
+const port = process.env.PORT || 8443
+const sessionMiddleware = session({
+  secret: "ssproject-20240701",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+});
 var app = express();
 app.use(express.json());
+app.use(sessionMiddleware);
 const server = createServer(app);
-const host = '0.0.0.0';
 createWebSocket(server);
+app.use(beforeAllAPI,sessionMiddleware)
 app.get("/",
     (req, res) => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/plain');
-      res.end('Zeet Hellow updated Node');
+      res.end('Node Js server started...');
     });
 
 // app.get("/getDB",async (req,res)=>{
@@ -21,14 +29,19 @@ app.get("/",
 // })
 
 app.post('/login', login)
+app.post('/logout', logout)
 app.post('/createOrg', createOrgAPI)
-app.post('/organization/:orgId', updateeOrgAPI)
+app.post('/organization/:orgId', updateOrgAPI)
+app.get('/organization/:orgId', getOrgAPI)
 app.post('/createUserTables', createUserTablesAPI)
 
 app.get('/users', getUsersListAPI)
 app.get('/users/:userId',getUsersListAPI)
 app.post('/users',addUserAPI)
-app.put('/users/:userId',updateUserAPI)
+app.put('/users/:userId',updateUserAPI);
+
+app.get('/sessions/:userId',getSessionDetailsAPI);
+app.delete('/sessions/:sessionId',deleteSessionDetailsAPI)
 
 app.post('/profiles', createProfileAPI)
 app.get('/profiles', getProfileListAPI)
@@ -48,12 +61,12 @@ app.get('/accessibledepartments/:departmentId', getAccessibleDeptListAPI)
 
 app.post('/createAccount', createAccountAPI)
 
-server.listen(port, host, ()=>{
-  console.log(`Server running at http://${host}:${port}/`);
+server.listen(port, ()=>{
+  console.log(`Server running`);
 });
 
 
-// fetch('http://localhost:3000/createAccount', {method:"POST", headers:{'Content-Type': 'application/json'},body:JSON.stringify({ orgName:"ShaOrg", 
+// fetch('http://localhost:8443/createAccount', {method:"POST", headers:{'Content-Type': 'application/json'},body:JSON.stringify({ orgName:"ShaOrg", 
 //         profileName:"Admin", 
 //         permissions:"1111111111",
 //         name:'Shahinsha',
