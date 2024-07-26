@@ -5,6 +5,7 @@ export const tableDetails = {
         orgName VARCHAR(255) NOT NULL UNIQUE,
         maxDept INTEGER NOT NULL DEFAULT 2,
         maxProfiles INTEGER NOT NULL DEFAULT 5,
+        maxUsers INTEGER NOT NULL DEFAULT 10,
         maxSessionLimit INTEGER NOT NULL DEFAULT 3,
         maxSessionTime INTEGER NOT NULL DEFAULT 72,
         isDisabledOrg BOOLEAN NOT NULL DEFAULT FALSE
@@ -83,6 +84,7 @@ export const insertUserQuery = ({orgId, profileId, userName, name, password, max
 export const getUsersListQuery = ({orgId, from, to}) => `SELECT u.name, u.userName,up.id,up.profileName,up.permissions FROM ${USERS_TABLE} u INNER JOIN ${PROFILE_TABLE} up ON u.userProfileID = up.id WHERE u.orgId = ${orgId} BETWEEN ${from} AND ${to};`
 export const getUserQuery = ({orgId, userId}) => `SELECT u.name, u.userName,up.id,up.profileName,up.permissions FROM ${USERS_TABLE} u INNER JOIN ${PROFILE_TABLE} up ON u.userProfileID = up.id WHERE u.orgId = ${orgId} AND u.ID = ${userId}`;
 export const updateUserQuery = ({values, userId})=> `UPDATE ${USERS_TABLE} SET ${values} WHERE ID = ${userId}`
+export const getUserCountQuery = ({orgId}) => `SELECT count(*) as count FROM ${USERS_TABLE} WHERE orgId = ${orgId};`;
 
 //User Session Queries
 const USER_SESSION_TABLE = 'session_details';
@@ -122,7 +124,27 @@ const updateObj = {
     'isDisabled' : {
       name:'isDisabledOrg',
       getValue: (val) => val === false ? 0 : 1
-    }
+    },
+    'maxSessionLimit' : {
+      name:'maxSessionLimit',
+      getValue: (val)=>val,
+    },
+    'maxSessionTime' : {
+      name:'maxSessionTime',
+      getValue: (val)=>val,
+    },
+    'maxDept' : {
+      name:'maxDept',
+      getValue: (val)=>val,
+    },
+    'maxProfiles' : {
+      name:'maxProfiles',
+      getValue: (val)=>val,
+    },
+    'maxUsers' : {
+      name:'maxUsers',
+      getValue: (val)=>val,
+    },
   },
   'USER_UPDATE':{
     'name' : {

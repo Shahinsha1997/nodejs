@@ -1,4 +1,4 @@
-import { getLoggedInSession, isDeptLimitReached, isProfileLimitReached } from "../databaseActions/userDetailAction.mjs";
+import { getLoggedInSession, isDeptLimitReached, isProfileLimitReached, isUserLimitReached } from "../databaseActions/userDetailAction.mjs";
 import { hasPermission } from "../utils/commonUtil.mjs"
 
 
@@ -45,9 +45,9 @@ export const isAllowedToViewProfile = async (permissions) =>{
     }
     throw "UNAUTHORIZED_ACCESS"
 }
-export const isAllowedToAddProfile = async ({orgId, permissions})=>{
+export const isAllowedToAddProfile = async ({orgId, permissions, orgObj})=>{
     const isAllowed = await isAllowedAction('addProfile', permissions);
-    const maxProfileReached = await isProfileLimitReached(orgId)
+    const maxProfileReached = await isProfileLimitReached(orgId, orgObj)
     if(!isAllowed) throw "UNAUTHORIZED_ACCESS";
     if(maxProfileReached) throw "MAX_PROFILE_REACHED"
     return true;
@@ -76,12 +76,12 @@ export const isAllowedToViewUser = async (permissions) =>{
     }
     throw "UNAUTHORIZED_ACCESS"
 }
-export const isAllowedToAddUser = async (permissions)=>{
-    const isAllowed = await isAllowedAction('addUser', permissions)
-    if(isAllowed){
-        return isAllowed;
-    }
-    throw "UNAUTHORIZED_ACCESS"
+export const isAllowedToAddUser = async ({orgId, permissions, orgObj})=>{
+    const isAllowed = await isAllowedAction('addUser', permissions) 
+    const maxUserReached = await isUserLimitReached(orgId,orgObj)
+    if(!isAllowed) throw "UNAUTHORIZED_ACCESS";
+    if(maxUserReached) throw "MAX_USER_REACHED"
+    return true;
 }
 export const isAllowedToUpdateUser = async (permissions) =>{
     const isAllowed = await isAllowedAction('editUser',permissions)
@@ -106,9 +106,9 @@ export const isAllowedToViewDept = async (permissions)=>{
    }
    throw "UNAUTHORIZED_ACCESS"
 }
-export const isAllowedToAddDept = async ({orgId, permissions})=>{
+export const isAllowedToAddDept = async ({orgId, permissions, orgObj})=>{
     const isAllowed = await isAllowedAction('addDept', permissions);
-    const maxDeptReached = await isDeptLimitReached(orgId)
+    const maxDeptReached = await isDeptLimitReached(orgId, orgObj)
     if(!isAllowed) throw "UNAUTHORIZED_ACCESS";
     if(maxDeptReached) throw "MAX_DEPT_REACHED"
     return true;

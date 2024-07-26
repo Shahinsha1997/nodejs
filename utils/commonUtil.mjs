@@ -64,6 +64,10 @@ export const ERROR_MESSAGES = {
     MAX_SESSION_REACHED: {
         status: 400,
         message: 'Maximum allowed session reached.'
+    },
+    MAX_USER_REACHED: {
+        status:400,
+        message: 'Maximum allowed users created.'
     }
 };
 export const SUCCESS_MESSAGES = {

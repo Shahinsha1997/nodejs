@@ -37,7 +37,6 @@ export const getOrgAPI = async (req, res) =>{
             throw 'UNAUTHORIZED_ACCESS'
         }
         const orgDetails = await getOrganizaitonByID(orgId);
-        console.log(orgDetails)
         req.session.orgObj = orgDetails;
         if(orgDetails){
             return sendResponse(res,{status: SUCCESS_STATUS,res:orgDetails})
@@ -80,11 +79,12 @@ export const getUsersListAPI = async (req, res)=>{
     }
 }
 export const addUserAPI = async (req, res)=>{
-    const { userId, orgId, permissions } = getUserSessionDetails(req.session)
+    const { userId, orgId, permissions } = getUserSessionDetails(req.session);
+    const orgObj = getUserSessionDetails(req.session, 'org')
     const { maxSessionTime:orgMaxSessionTime=MAX_SESSION_TIME, maxSessionLimit:orgMaxSessionLimit=MAX_SESSION_LIMIT } = getUserSessionDetails(req.session, 'org') || {};
     const { userName, name, password, maxSessionLimit=MAX_SESSION_LIMIT, maxSessionTime=MAX_SESSION_TIME, profileId } = req.body;
     try{
-        await isAllowedToAddUser(permissions);
+        await isAllowedToAddUser({orgId, permissions, orgObj});
         if(maxSessionLimit > orgMaxSessionLimit){
             throw 'MAX_SESSION_LIMIT_ERROR'
         }
@@ -127,8 +127,9 @@ export const updateUserAPI = async (req, res)=>{
 export const createProfileAPI = async (req, res)=>{
     const { userId:requestingUserId, orgId, permissions:existPermissions } = getUserSessionDetails(req.session)
     const { profileName, permissions } = req.body;
+    const orgObj = getUserSessionDetails(req.session,'org')
     try{
-        await isAllowedToAddProfile({orgId, permissions:existPermissions});
+        await isAllowedToAddProfile({orgId, permissions:existPermissions,orgObj});
         await createProfile({orgId, profileName, permissions });
         return sendResponse(res,{status: SUCCESS_STATUS, message: SUCCESS_MESSAGES['PROFILE_CREATED']})
     }catch(error){
@@ -137,14 +138,16 @@ export const createProfileAPI = async (req, res)=>{
     }
 }
 export const getProfileListAPI = async (req, res)=>{
-    const { userId, orgId, permissions } = getUserSessionDetails(req.session)
+    const { userId, orgId, permissions, profileId:userProfileId } = getUserSessionDetails(req.session)
     const { from, to } = parseFromLimit(req.query)
     const { profileId } = req.params;
     try{
-        await isAllowedToViewProfile(permissions);
+        userProfileId != profileId && await isAllowedToViewProfile(permissions);
         let result = [];
         if(profileId){
             result = await getProfile({orgId, profileId });
+            const userObj = selectn('session.userObj',req) || {};
+            userObj.permissions = result.permissions;
         }else{
             result = await getProfileList({orgId, from, to });
         }
@@ -156,9 +159,10 @@ export const getProfileListAPI = async (req, res)=>{
 }
 export const createDepartmentAPI = async (req, res)=>{
     const { userId, orgId, permissions } = getUserSessionDetails(req.session)
+    const orgObj = getUserSessionDetails(req.session,'org')
     const { departmentName } = req.body;
     try{
-        await isAllowedToAddDept({orgId, permissions});
+        await isAllowedToAddDept({orgId, permissions,orgObj});
         await createDepartment({orgId, deptName:departmentName });
         return sendResponse(res,{status: SUCCESS_STATUS, message: SUCCESS_MESSAGES['DEPARTMENT_CREATED']})
     }catch(error){
