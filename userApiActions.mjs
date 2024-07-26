@@ -345,6 +345,8 @@ export const logout = async (req, res) =>{
 }
 
 export const beforeAllAPI = async (req, res, next) =>{
+    const sessionObj = selectn(`sessionStore.sessions`,req);;
+    console.log(JSON.stringify(sessionObj))
     if(req.session.userObj || req.path == '/login' || req.path == '/createUserTables' || req.path == '/createAccount'){
         const { createdAt, maxSessionTime } = selectn(`session.userObj`,req) || {};
         if(createdAt && createdAt + (maxSessionTime * HR_IN_MS) <= Date.now()){

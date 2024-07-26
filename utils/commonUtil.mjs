@@ -116,7 +116,6 @@ export const hasPermission = (permissions,permissionName) => {
         'viewSale','addSale','editSale','deleteSale'
     ];
     const permissionIndex = permissionArr.indexOf(permissionName);
-    console.log(permissionName, permissionIndex, permissions)
     return permissions[permissionIndex] == 1;
 }
 
