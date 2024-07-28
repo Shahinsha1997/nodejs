@@ -69,7 +69,7 @@ export const getUser = async ({orgId, userId}) =>{
 }
 export const addUser = async (props) =>{
     const result = await userDBQueries(insertUserQuery(props));
-    return result.rows;
+    return result.lastInsertRowid;
 }
 export const updateUser = async ({userId, values}) =>{
     const result = await userDBQueries(updateUserQuery({userId, values}));
@@ -78,7 +78,8 @@ export const updateUser = async ({userId, values}) =>{
 
 
 export const createProfile = async ({profileName, orgId, orgName, permissions})=>{
-    return await userDBQueries(insertProfileQuery({orgId, orgName, permissions, profileName}));
+    const result = await userDBQueries(insertProfileQuery({orgId, orgName, permissions, profileName}));
+    return result.lastInsertRowid;
 }
 export const getProfileList = async ({orgId, from, to}) =>{
     const result = await userDBQueries(getProfileListQuery({orgId, from, to}));
@@ -86,14 +87,15 @@ export const getProfileList = async ({orgId, from, to}) =>{
 }
 export const getProfile = async ({orgId, profileId}) =>{
     const result = await userDBQueries(getProfileQuery({orgId, profileId}));
-    return result.rows[0];
+    return result.rows;
 }
 export const getProfileCount = async ({orgId}) =>{
     const result = await userDBQueries(getProfileCountQuery({orgId}));
     return result.rows;
 }
 export const createDepartment = async ({deptName, orgId})=>{
-    return await userDBQueries(insertDeptQuery({orgId, deptName}));
+    const result =  await userDBQueries(insertDeptQuery({orgId, deptName}));
+    return result.lastInsertRowid;
 }
 export const getDeptList = async ({orgId, from, to}) =>{
     const result = await userDBQueries(getDeptListQuery({orgId, from, to}));
@@ -101,7 +103,7 @@ export const getDeptList = async ({orgId, from, to}) =>{
 }
 export const getDepartment = async ({orgId, deptId}) =>{
     const result = await userDBQueries(getDeptQuery({orgId, deptId}));
-    return result.rows[0];
+    return result.rows;
 }
 export const getDepartmentCount = async ({orgId}) =>{
     const result = await userDBQueries(getDeptCountQuery({orgId}));
@@ -112,7 +114,6 @@ export const getUsersCount = async ({orgId}) =>{
     return result.rows;
 }
 export const updateDept = async ({deptId, values})=>{
-    console.log(updateDeptQuery({deptId, values}))
     const result = await userDBQueries(updateDeptQuery({deptId, values}));
     return result.rows;
 }
@@ -162,14 +163,14 @@ export const isProfileLimitReached = async ({orgId, orgObj={}})=>{
         orgObj = await getOrganizaitonByID(orgId);
     }
     const [{count: profileCount}] = await getProfileCount({orgId});
-    return orgDetails.maxProfiles <= profileCount
+    return orgObj.maxProfiles <= profileCount
 }
 export const isUserLimitReached = async ({orgId, orgObj={}})=>{
     if(!orgObj.maxUsers){
         orgObj = await getOrganizaitonByID(orgId);
     }
     const [{count: deptCount}] = await getDepartmentCount({orgId});
-    return orgDetails.maxUsers <= deptCount
+    return orgObj.maxUsers <= deptCount
 }
 export const createAccount = async (args) =>{
     const { 

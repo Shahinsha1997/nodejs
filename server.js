@@ -2,15 +2,20 @@ import express from 'express';
 import { createServer } from 'http';
 import { createWebSocket } from './websocket/websocketconfig.mjs';
 import session from 'express-session'
+import cors from 'cors'
 import { addUserAPI, beforeAllAPI, createAccountAPI, createDepartmentAPI, createOrgAPI, createProfileAPI, createUserTablesAPI, deleteDepartmentAPI, deleteSessionDetailsAPI, getAccessibleDeptListAPI, getDepartmentListAPI, getOrgAPI, getProfileListAPI, getSessionDetailsAPI, getUsersListAPI, login, logout, updateDepartmentAPI, updateDeptToUser, updateOrgAPI, updateUserAPI } from './userApiActions.mjs';
 const port = process.env.PORT || 8443
 const sessionMiddleware = session({
   secret: "ssproject-20240701",
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
+  saveUninitialized: false,
+  cookie: { secure: false, httpOnly:false, sameSite:'None' }
 });
 var app = express();
+app.use(cors({
+  origin: 'http://localhost:3000', // Replace with your React app's URL
+  credentials: true,
+}));
 app.use(express.json());
 app.use(sessionMiddleware);
 const server = createServer(app);
