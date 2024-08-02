@@ -76,7 +76,8 @@ export const getProfileListQuery = ({orgId, from, to}) => `SELECT  * from ${PROF
 export const getProfileQuery = ({orgId, profileId}) => `SELECT  * from ${PROFILE_TABLE} WHERE orgID = '${orgId}' AND ID = ${profileId}`
 export const getProfileCountQuery = ({orgId}) => `SELECT count(*) as count FROM ${PROFILE_TABLE} WHERE orgID = ${orgId};`;
 export const insertProfileQuery = ({orgId, profileName, permissions}) => `INSERT INTO ${PROFILE_TABLE} (orgID, profileName,permissions) VALUES ('${orgId}','${profileName}','${permissions}');`
-
+export const updateProfileQuery = ({id, values}) => `UPDATE ${PROFILE_TABLE} SET ${values} WHERE ID = ${id}`
+export const deleteProfileQuery = ({profileId}) => `DELETE FROM ${PROFILE_TABLE} WHERE ID=${profileId};`
 
 //User Queries
 const USERS_TABLE = 'users'
@@ -86,16 +87,18 @@ export const getUsersListQuery = ({orgId, from, to}) => `SELECT * FROM ${USERS_T
 export const getUserQuery = ({orgId, userId}) => `SELECT * FROM ${USERS_TABLE} WHERE orgID = ${orgId} AND ID = ${userId}`;
 export const updateUserQuery = ({values, userId})=> `UPDATE ${USERS_TABLE} SET ${values} WHERE ID = ${userId}`
 export const getUserCountQuery = ({orgId}) => `SELECT count(*) as count FROM ${USERS_TABLE} WHERE orgID = ${orgId};`;
+export const deleteUserQuery = ({userId}) => `DELETE FROM ${USERS_TABLE} WHERE ID=${userId};`
 
 //User Session Queries
 const USER_SESSION_TABLE = 'session_details';
 export const insertUserSessionQuery = ({userAgent, userId}) => `INSERT INTO ${USER_SESSION_TABLE} (userID, userAgent) VALUES ('${userId}','${userAgent}');`
 export const getSessionCountQuery = ({userId}) => `SELECT count(*) as count FROM ${USER_SESSION_TABLE} WHERE userID = ${userId}`;
 export const getSessionDetailsQuery = ({userId}) => `SELECT * from ${USER_SESSION_TABLE} WHERE userID = ${userId}`;
+export const getAllSessionQuery = ({orgId, from , to}) => `SELECT sess.*, user.name  from ${USER_SESSION_TABLE} as sess INNER JOIN ${USERS_TABLE} as user ON user.ID = sess.userID WHERE orgID = ${orgId} BETWEEN ${from} AND ${to};`;
 export const deleteSession = ({sessionId}) => `DELETE FROM ${USER_SESSION_TABLE} WHERE ID = ${sessionId};`
 //Department Queries
 const DEPT_TABLE = 'departments'
-export const insertDeptQuery = ({orgId, deptName}) => `INSERT INTO ${DEPT_TABLE} (orgID, deptName) VALUES ('${orgId}','${deptName}');`
+export const insertDeptQuery = ({orgId, deptName, isDisabled}) => `INSERT INTO ${DEPT_TABLE} (orgID, deptName, isDisabledDept) VALUES ('${orgId}','${deptName}', ${isDisabled});`
 export const getDeptListQuery = ({orgId, from, to}) => `SELECT  * FROM ${DEPT_TABLE} WHERE orgID = ${orgId} BETWEEN ${from} AND ${to};`
 export const getDeptQuery = ({orgId, deptId}) => `SELECT * FROM ${DEPT_TABLE} WHERE u.orgID = ${orgId} AND ID = ${deptId};`;
 export const getDeptCountQuery = ({orgId}) => `SELECT count(*) as count FROM ${DEPT_TABLE} WHERE orgID = ${orgId};`;
@@ -112,7 +115,7 @@ export const insertDeptsAccessQuery = (values)=>`INSERT OR IGNORE INTO ${DEPT_AC
 export const revokeAccessDeptQuery = ({userId, deptIds}) =>`DELETE FROM ${DEPT_ACCESS_TABLE} WHERE userID=${userId} AND deptID IN (${deptIds});`
 const updateObj = {
   'DEPT_UPDATE' : {
-    'departmentName' : {
+    'deptName' : {
       name: 'deptName',
       getValue: (val)=>val
     },
@@ -164,6 +167,16 @@ const updateObj = {
       name:'isDisabledUser',
       getValue: (val) => val === false ? 0 : 1
     },
+  },
+  'PROFILE_UPDATE':{
+    'profileName' : {
+      name:'profileName',
+      getValue: (val)=>val
+    },
+    'permissions' : {
+      name:'permissions',
+      getValue: (val)=>val,
+    }
   }
 }
 export const getUpdateValues = (type, valueObj)=>{

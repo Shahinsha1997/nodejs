@@ -1,7 +1,7 @@
-import { addSessionDetails, addUser, createAccount, createDepartment, createOrg, createProfile, createUserTables, deleteDept, deleteSessionDetails, getAccessibleDepartment, getAccessibleDeptList, getDepartment, getDeptList, getOrganizaitonByID, getProfile, getProfileList, getSessionDetails, getUser, getUserList, isAccesibleDeptList, isDuplicateModuleFound,  loginUser, updadteAccessibleDepartments, updateDept, updateOrg, updateUser } from "./databaseActions/userDetailAction.mjs";
-import { ERROR_MESSAGES, INTERNAL_SERVER_ERROR, NOT_FOUND_STATUS, SUCCESS_MESSAGES, SUCCESS_STATUS, UNAUTHORIZED_ACCESS, convertResAsStr, parseFromLimit, selectn, sendResponse, structureDeptObj, structureOrgObj, structureProfileObj, structureUserObj } from "./utils/commonUtil.mjs";
+import { addSessionDetails, addUser, createAccount, createDepartment, createOrg, createProfile, createUserTables, deleteDept, deleteProfile, deleteSessionDetails, deleteUser, getAccessibleDepartment, getAccessibleDeptList, getAllSessionDetails, getDepartment, getDeptList, getOrganizaitonByID, getProfile, getProfileList, getSessionDetails, getUser, getUserList, isAccesibleDeptList, isDuplicateModuleFound,  loginUser, updadteAccessibleDepartments, updateDept, updateOrg, updateProfile, updateUser } from "./databaseActions/userDetailAction.mjs";
+import { ERROR_MESSAGES, INTERNAL_SERVER_ERROR, NOT_FOUND_STATUS, SUCCESS_MESSAGES, SUCCESS_STATUS, UNAUTHORIZED_ACCESS, convertResAsStr, parseFromLimit, selectn, sendResponse, structureDeptObj, structureOrgObj, structureProfileObj, structureSessionObj, structureUserObj } from "./utils/commonUtil.mjs";
 import { HR_IN_MS, MAX_SESSION_LIMIT, MAX_SESSION_TIME, PER_DAY_IN_MS, getEncryptedPassword, getUpdateValues, getUserSessionDetails, isPasswordMatch } from "./utils/tableDetails.mjs";
-import { isAllowedToAddDept, isAllowedToAddOrg, isAllowedToAddProfile, isAllowedToAddUser, isAllowedToDeleteDept, isAllowedToLogin, isAllowedToUpdateDept, isAllowedToUpdateOrg, isAllowedToUpdateUser, isAllowedToViewDept, isAllowedToViewProfile, isAllowedToViewUser } from "./authorizations/userAuthorization.mjs";
+import { isAllowedToAddDept, isAllowedToAddOrg, isAllowedToAddProfile, isAllowedToAddUser, isAllowedToDeleteDept, isAllowedToDeleteProfile, isAllowedToDeleteUser, isAllowedToLogin, isAllowedToUpdateDept, isAllowedToUpdateOrg, isAllowedToUpdateProfile, isAllowedToUpdateUser, isAllowedToViewDept, isAllowedToViewProfile, isAllowedToViewUser } from "./authorizations/userAuthorization.mjs";
 import useragent from "useragent";
 export const createOrgAPI = async (req, res) =>{
     try{
@@ -90,9 +90,10 @@ export const addUserAPI = async (req, res)=>{
         if(maxSessionTime > orgMaxSessionTime){
             throw 'MAX_SESSION_TIME_ERROR'
         }
+        await isDuplicateModuleFound({moduleType:"USER", moduleName: userName});
         const encrptedPassword = await getEncryptedPassword(password);
-        await addUser({orgId, userName, name, password:encrptedPassword, profileId, maxSessionLimit, maxSessionTime})
-        return sendResponse(res,{status: SUCCESS_STATUS, 'message': SUCCESS_MESSAGES['USER_ADDED']})
+        const id = await addUser({orgId, userName, name, password:encrptedPassword, profileId, maxSessionLimit, maxSessionTime})
+        return sendResponse(res,{status: SUCCESS_STATUS, 'message': SUCCESS_MESSAGES['USER_ADDED'], id:Number(id)})
     }catch(error){
         console.log(error)
         return sendResponse(res,ERROR_MESSAGES[error])
@@ -104,6 +105,7 @@ export const updateUserAPI = async (req, res)=>{
     const { password, maxSessionLimit, maxSessionTime } = req.body;
     const { maxSessionTime:orgMaxSessionTime, maxSessionLimit:orgMaxSessionLimit } = getUserSessionDetails(req, 'org');
     try{
+        const { userName } = req.body;
         await isAllowedToUpdateUser(permissions);
         if(maxSessionLimit && maxSessionLimit > orgMaxSessionLimit){
             throw 'MAX_SESSION_LIMIT_ERROR'
@@ -111,6 +113,7 @@ export const updateUserAPI = async (req, res)=>{
         if(maxSessionTime && maxSessionTime > orgMaxSessionTime){
             throw 'MAX_SESSION_TIME_ERROR'
         }
+        await isDuplicateModuleFound({moduleType:"USER", moduleName: userName});
         let encrptedPassword = '';
         if(password){
             encrptedPassword = await getEncryptedPassword(password)
@@ -123,6 +126,18 @@ export const updateUserAPI = async (req, res)=>{
         return sendResponse(res,ERROR_MESSAGES[error])
     }
 }
+export const deleteUserAPI = async (req, res)=>{
+    const { orgId, permissions } = getUserSessionDetails(req)
+    const { userId } = req.params;
+    try{
+        await isAllowedToDeleteUser((permissions));
+        await deleteUser({userId});
+        return sendResponse(res,{status: SUCCESS_STATUS, message:SUCCESS_MESSAGES['USER_DELETED']})
+    }catch(error){
+        console.log(error)
+        return sendResponse(res,ERROR_MESSAGES[error])
+    }
+}
 export const createProfileAPI = async (req, res)=>{
     const { userId:requestingUserId, orgId, permissions:existPermissions } = getUserSessionDetails(req)
     const { profileName, permissions } = req.body;
@@ -130,7 +145,21 @@ export const createProfileAPI = async (req, res)=>{
     try{
         await isAllowedToAddProfile({orgId, permissions:existPermissions,orgObj});
         const id = await createProfile({orgId, profileName, permissions });
-        return sendResponse(res,{status: SUCCESS_STATUS, message: SUCCESS_MESSAGES['PROFILE_CREATED'], id})
+        return sendResponse(res,{status: SUCCESS_STATUS, message: SUCCESS_MESSAGES['PROFILE_CREATED'], id:Number(id)})
+    }catch(error){
+        console.log(error)
+        return sendResponse(res,ERROR_MESSAGES[error])
+    }
+}
+export const updateProfileAPI = async (req, res)=>{
+    const { userId:requestingUserId, orgId, permissions:existPermissions } = getUserSessionDetails(req)
+    const orgObj = getUserSessionDetails(req,'org')
+    const { profileId } = req.params;
+    try{
+        await isAllowedToUpdateProfile({orgId, permissions:existPermissions,orgObj})
+        const values = getUpdateValues('PROFILE_UPDATE',req.body)
+        await updateProfile({id:profileId, values });
+        return sendResponse(res,{status: SUCCESS_STATUS, message: SUCCESS_MESSAGES['PROFILE_UPDATED']})
     }catch(error){
         console.log(error)
         return sendResponse(res,ERROR_MESSAGES[error])
@@ -156,14 +185,26 @@ export const getProfileListAPI = async (req, res)=>{
         return sendResponse(res,ERROR_MESSAGES[error])
     }
 }
+export const deleteProfileAPI = async (req, res)=>{
+    const { userId, orgId, permissions } = getUserSessionDetails(req)
+    const { profileId } = req.params;
+    try{
+        await isAllowedToDeleteProfile(permissions);
+        const result = await deleteProfile({profileId});
+        return sendResponse(res,{status: SUCCESS_STATUS, response:result})
+    }catch(error){
+        console.log(error)
+        return sendResponse(res,ERROR_MESSAGES[error])
+    }
+}
 export const createDepartmentAPI = async (req, res)=>{
     const { userId, orgId, permissions } = getUserSessionDetails(req)
     const orgObj = getUserSessionDetails(req,'org')
-    const { departmentName } = req.body;
+    const { deptName, isDisabled } = req.body;
     try{
         await isAllowedToAddDept({orgId, permissions,orgObj});
-        const id =await createDepartment({orgId, deptName:departmentName });
-        return sendResponse(res,{status: SUCCESS_STATUS, message: SUCCESS_MESSAGES['DEPARTMENT_CREATED'], id})
+        const id =await createDepartment({orgId, deptName:deptName, isDisabled });
+        return sendResponse(res,{status: SUCCESS_STATUS, message: SUCCESS_MESSAGES['DEPARTMENT_CREATED'], id:Number(id)})
     }catch(error){
         console.log(error)
         return sendResponse(res,ERROR_MESSAGES[error])
@@ -193,8 +234,8 @@ export const updateDepartmentAPI = async (req,res) =>{
     try{
         await isAllowedToUpdateDept(permissions);
         const values = getUpdateValues('DEPT_UPDATE',req.body)
-        const result = await updateDept({deptId:departmentId, values });
-        return sendResponse(res,{status: SUCCESS_STATUS, response:result})
+        await updateDept({deptId:departmentId, values });
+        return sendResponse(res,{status: SUCCESS_STATUS, message:SUCCESS_MESSAGES['DEPARTMENT_UPDATED']})
     }catch(error){
         console.log(error)
         return sendResponse(res,ERROR_MESSAGES[error])
@@ -274,11 +315,17 @@ export const addSessionDetailsAPI = async (req, userId)=>{
 }
 export const getSessionDetailsAPI = async (req, res)=>{
     try{
-        const { userId:requestingUserId, permissions } = getUserSessionDetails(req);
+        const { userId:requestingUserId, permissions, orgId } = getUserSessionDetails(req);
         const { userId } = req.params;
         await isAllowedToViewUser(permissions);
-        const result = await getSessionDetails({userId });
-        return sendResponse(res,{status:SUCCESS_STATUS, response:result})
+        let result = [];
+        const { from, to } = parseFromLimit(req.query)
+        if(userId){
+            result = await getSessionDetails({userId });
+        }else{
+            result = await getAllSessionDetails({orgId, from , to});
+        }
+        return sendResponse(res,{status:SUCCESS_STATUS, response:structureSessionObj(result)})
     }catch(error){
         console.log(error)
         return sendResponse(res,ERROR_MESSAGES[error])

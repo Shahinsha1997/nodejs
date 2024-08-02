@@ -77,11 +77,14 @@ export const SUCCESS_MESSAGES = {
     ORG_CREATED : 'Organization created successfully',
     ORG_UDPATED : 'Organization updated successfully',
     USER_ADDED : 'User added successfully',
-    USER_UDPATED : 'User updated successfully',
+    USER_UPDATED : 'User updated successfully',
+    USER_DELETED: 'User deleted successfully',
     PROFILE_CREATED: 'Profile created successfully',
+    PROFILE_UPDATED: 'Profile updated successfully',
     ACCOUNT_CREATED: 'Account created successfully',
     ACCOUNT_NOT_CREATED: "Account doesn't created successfully",
     DEPARTMENT_CREATED: 'Department created successfully',
+    DEPARTMENT_UPDATED: 'Department updated successfully',
     DEPT_ACCESS_GRANTED: 'Department access updated successfully',
     SESSION_DELETED: 'Session revoked successfully',
     LOGOUT_SUCCESS: 'Logout successfully'
@@ -161,6 +164,14 @@ export const structureOrgObj = (arr=[])=>{
     arr.map(orgObj=>{
         const { ID, orgName, maxDept, maxUsers, maxProfiles, maxSessionLimit, maxSessionTime, isDisabledOrg } = orgObj;
         result.push({id:ID, orgName, maxDept, maxUsers, maxProfiles, maxSessionLimit, maxSessionTime, isDisabled: isDisabledOrg == 1})
+    })
+    return result;
+}
+export const structureSessionObj = (arr=[])=>{
+    const result = [];
+    arr.map(sessionObj=>{
+        const { ID, userID, name, userAgent } = sessionObj;
+        result.push({id:ID, userId: userID, name, userAgent})
     })
     return result;
 }

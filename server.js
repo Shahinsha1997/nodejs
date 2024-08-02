@@ -3,7 +3,7 @@ import { createServer } from 'http';
 import { createWebSocket } from './websocket/websocketconfig.mjs';
 import session from 'express-session'
 import cors from 'cors'
-import { addUserAPI, beforeAllAPI, createAccountAPI, createDepartmentAPI, createOrgAPI, createProfileAPI, createUserTablesAPI, deleteDepartmentAPI, deleteSessionDetailsAPI, getAccessibleDeptListAPI, getDepartmentListAPI, getOrgAPI, getProfileListAPI, getSessionDetailsAPI, getUsersListAPI, login, logout, updateDepartmentAPI, updateDeptToUser, updateOrgAPI, updateUserAPI } from './userApiActions.mjs';
+import { addUserAPI, beforeAllAPI, createAccountAPI, createDepartmentAPI, createOrgAPI, createProfileAPI, createUserTablesAPI, deleteDepartmentAPI, deleteProfileAPI, deleteSessionDetailsAPI, getAccessibleDeptListAPI, getDepartmentListAPI, getOrgAPI, getProfileListAPI, getSessionDetailsAPI, getUsersListAPI, login, logout, updateDepartmentAPI, updateDeptToUser, updateOrgAPI, updateUserAPI } from './userApiActions.mjs';
 const port = process.env.PORT || 8443
 const sessionMiddleware = session({
   secret: "ssproject-20240701",
@@ -44,13 +44,17 @@ app.get('/users', getUsersListAPI)
 app.get('/users/:userId',getUsersListAPI)
 app.post('/users',addUserAPI)
 app.put('/users/:userId',updateUserAPI);
+app.delete('/users/:userId', deleteProfileAPI)
 
+app.get('/sessions',getSessionDetailsAPI);
 app.get('/sessions/:userId',getSessionDetailsAPI);
 app.delete('/sessions/:sessionId',deleteSessionDetailsAPI)
 
 app.post('/profiles', createProfileAPI)
 app.get('/profiles', getProfileListAPI)
+app.put('/profiles/:profileId', updateDepartmentAPI)
 app.get('/profiles/:profileId', getProfileListAPI)
+app.delete('/profiles/:profileId', deleteProfileAPI)
 
 
 app.post('/departments', createDepartmentAPI); 

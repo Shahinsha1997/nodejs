@@ -47,7 +47,7 @@ export const isAllowedToViewProfile = async (permissions) =>{
 }
 export const isAllowedToAddProfile = async ({orgId, permissions, orgObj})=>{
     const isAllowed = await isAllowedAction('addProfile', permissions);
-    const maxProfileReached = await isProfileLimitReached(orgId, orgObj)
+    const maxProfileReached = await isProfileLimitReached({orgId, orgObj})
     if(!isAllowed) throw "UNAUTHORIZED_ACCESS";
     if(maxProfileReached) throw "MAX_PROFILE_REACHED"
     return true;
@@ -78,7 +78,7 @@ export const isAllowedToViewUser = async (permissions) =>{
 }
 export const isAllowedToAddUser = async ({orgId, permissions, orgObj})=>{
     const isAllowed = await isAllowedAction('addUser', permissions) 
-    const maxUserReached = await isUserLimitReached(orgId,orgObj)
+    const maxUserReached = await isUserLimitReached({orgId,orgObj})
     if(!isAllowed) throw "UNAUTHORIZED_ACCESS";
     if(maxUserReached) throw "MAX_USER_REACHED"
     return true;
@@ -108,7 +108,7 @@ export const isAllowedToViewDept = async (permissions)=>{
 }
 export const isAllowedToAddDept = async ({orgId, permissions, orgObj})=>{
     const isAllowed = await isAllowedAction('addDept', permissions);
-    const maxDeptReached = await isDeptLimitReached(orgId, orgObj)
+    const maxDeptReached = await isDeptLimitReached({orgId, orgObj})
     if(!isAllowed) throw "UNAUTHORIZED_ACCESS";
     if(maxDeptReached) throw "MAX_DEPT_REACHED"
     return true;

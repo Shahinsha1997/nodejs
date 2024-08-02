@@ -1,5 +1,5 @@
 import { getUserManagementDB } from "../utils/dbUtils.mjs";
-import { insertOrgQuery, getOrgByNameQuery, tableDetails, userTables, insertProfileQuery, getOrgByIDQuery, insertUserQuery, insertDeptQuery, insertDeptAccessQuery, getUserByNameQuery, getProfileListQuery, getUsersListQuery, getUserQuery, getProfileQuery, getDeptListQuery, getDeptQuery, getAccessibleDeptListQuery, getAccesibleDeptQuery, insertDeptsAccessQuery, updateDeptQuery, deleteDeptQuery, isAccessibleDeptQuery, revokeAccessDeptQuery, updateOrgQuery, updateUserQuery, insertUserSessionQuery, getDeptCountQuery, getProfileCountQuery, getSessionCountQuery, deleteSession, getSessionDetailsQuery, getUserCountQuery } from "../utils/tableDetails.mjs";
+import { insertOrgQuery, getOrgByNameQuery, tableDetails, userTables, insertProfileQuery, getOrgByIDQuery, insertUserQuery, insertDeptQuery, insertDeptAccessQuery, getUserByNameQuery, getProfileListQuery, getUsersListQuery, getUserQuery, getProfileQuery, getDeptListQuery, getDeptQuery, getAccessibleDeptListQuery, getAccesibleDeptQuery, insertDeptsAccessQuery, updateDeptQuery, deleteDeptQuery, isAccessibleDeptQuery, revokeAccessDeptQuery, updateOrgQuery, updateUserQuery, insertUserSessionQuery, getDeptCountQuery, getProfileCountQuery, getSessionCountQuery, deleteSession, getSessionDetailsQuery, getUserCountQuery, getAllSessionQuery, updateProfileQuery, deleteProfileQuery, deleteUserQuery } from "../utils/tableDetails.mjs";
 
 const userDBQueries = async (query)=>{
     const userManagementDB =  await getUserManagementDB();
@@ -68,6 +68,7 @@ export const getUser = async ({orgId, userId}) =>{
     return result.rows;
 }
 export const addUser = async (props) =>{
+    console.log(insertUserQuery(props))
     const result = await userDBQueries(insertUserQuery(props));
     return result.lastInsertRowid;
 }
@@ -76,9 +77,17 @@ export const updateUser = async ({userId, values}) =>{
     return result.rows;
 }
 
+export const deleteUser = async ({userId})=>{
+    const result = await userDBQueries(deleteUserQuery({userId}));
+    return result.rows;
+}
 
 export const createProfile = async ({profileName, orgId, orgName, permissions})=>{
     const result = await userDBQueries(insertProfileQuery({orgId, orgName, permissions, profileName}));
+    return result.lastInsertRowid;
+}
+export const updateProfile = async ({id, values})=>{
+    const result = await userDBQueries(updateProfileQuery({id, values}));
     return result.lastInsertRowid;
 }
 export const getProfileList = async ({orgId, from, to}) =>{
@@ -93,8 +102,12 @@ export const getProfileCount = async ({orgId}) =>{
     const result = await userDBQueries(getProfileCountQuery({orgId}));
     return result.rows;
 }
-export const createDepartment = async ({deptName, orgId})=>{
-    const result =  await userDBQueries(insertDeptQuery({orgId, deptName}));
+export const deleteProfile = async ({profileId})=>{
+    const result = await userDBQueries(deleteProfileQuery({profileId}));
+    return result.rows;
+}
+export const createDepartment = async ({deptName, orgId, isDisabled})=>{
+    const result =  await userDBQueries(insertDeptQuery({orgId, deptName, isDisabled}));
     return result.lastInsertRowid;
 }
 export const getDeptList = async ({orgId, from, to}) =>{
@@ -137,6 +150,10 @@ export const getSessionDetails = async ({userId})=>{
     const result = await userDBQueries(getSessionDetailsQuery({userId}));
     return result.rows;
 }
+export const getAllSessionDetails = async ({orgId, from, to})=>{
+    const result = await userDBQueries(getAllSessionQuery({orgId, from , to}));
+    return result.rows;
+}
 export const deleteSessionDetails = async ({sessionId})=>{
     return await userDBQueries(deleteSession({sessionId}));
 }
@@ -169,9 +186,10 @@ export const isUserLimitReached = async ({orgId, orgObj={}})=>{
     if(!orgObj.maxUsers){
         orgObj = await getOrganizaitonByID(orgId);
     }
-    const [{count: deptCount}] = await getDepartmentCount({orgId});
-    return orgObj.maxUsers <= deptCount
+    const [{count: userCount}] = await getUsersCount({orgId});
+    return orgObj.maxUsers <= userCount
 }
+
 export const createAccount = async (args) =>{
     const { 
         orgName, 
