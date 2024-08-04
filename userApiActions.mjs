@@ -313,6 +313,9 @@ export const addSessionDetailsAPI = async (req, userId)=>{
     const userAgent = req.headers['user-agent'];
     return await addSessionDetails({userId, userAgent });
 }
+export const isValidSession = async(req,res) =>{
+    return sendResponse(res,{status:SUCCESS_STATUS})
+}
 export const getSessionDetailsAPI = async (req, res)=>{
     try{
         const { userId:requestingUserId, permissions, orgId } = getUserSessionDetails(req);
@@ -366,6 +369,7 @@ export const login = async (req, res)=>{
                 createdAt: Date.now(),
                 permissions
             };
+            req.io.emit("loggedIn", {orgId, name})
             return sendResponse(res,{status: SUCCESS_STATUS, sessionId:req.sessionID,response: {id, name, orgId, profileId, permissions}})
         }
         return sendResponse(res,ERROR_MESSAGES['UNAUTHORIZED_ACCESS'])
@@ -410,12 +414,13 @@ const deleteSessions = async (req,sessionId, orgId)=>{
     const sessionObj = selectn(`sessionStore.sessions`,req);
     const sessionArr = Object.keys(sessionObj);
     for(let i=0;i<sessionArr.length;i++){
-        const { userObj } = JSON.parse(sessionObj[sessionArr[i]]);
+        const { userObj={} } = JSON.parse(sessionObj[sessionArr[i]] || '{}');
         if(userObj.sessionId == sessionId){
             if(userObj.orgId != orgId){
                 throw 'UNAUTHORIZED_ACCESS'
             }
             await req.sessionStore.destroy(sessionArr[i])
+            req.io.emit('revokeSession',{sessionId:sessionArr[i]})
             break;
         }
     }

@@ -31,4 +31,5 @@ export const createWebSocket = (server) =>{
                 console.log('disconnected from user');
             });
     });
+    return io;
 }
