@@ -68,7 +68,6 @@ export const getUser = async ({orgId, userId}) =>{
     return result.rows;
 }
 export const addUser = async (props) =>{
-    console.log(insertUserQuery(props))
     const result = await userDBQueries(insertUserQuery(props));
     return result.lastInsertRowid;
 }

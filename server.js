@@ -4,7 +4,9 @@ import { createWebSocket } from './websocket/websocketconfig.mjs';
 import session from 'express-session'
 import cors from 'cors'
 import { addUserAPI, beforeAllAPI, createAccountAPI, createDepartmentAPI, createOrgAPI, createProfileAPI, createUserTablesAPI, deleteDepartmentAPI, deleteProfileAPI, deleteSessionDetailsAPI, getAccessibleDeptListAPI, getDepartmentListAPI, getOrgAPI, getProfileListAPI, getSessionDetailsAPI, getUsersListAPI, isValidSession, login, logout, updateDepartmentAPI, updateDeptToUser, updateOrgAPI, updateUserAPI } from './userApiActions.mjs';
+import { countMovieAPI, createMovieAPI, deleteMovieAPI, getMovieListAPI, updateMovieAPI } from './movieApiActions.mjs';
 const port = process.env.PORT || 8443
+const commonAPIStr = '/api/v1'
 const sessionMiddleware = session({
   secret: "ssproject-20240701",
   resave: false,
@@ -13,18 +15,18 @@ const sessionMiddleware = session({
 });
 var app = express();
 app.use(cors({
-  origin: 'http://localhost:3000', // Replace with your React app's URL
+  origin: '*', // Replace with your React app's URL
   credentials: true,
 }));
 app.use(express.json());
-app.use(sessionMiddleware);
+// app.use(sessionMiddleware);
 const server = createServer(app);
 const io = createWebSocket(server);
 app.use((req,res,next) =>{
   req.io = io;
   next();
 })
-app.use(beforeAllAPI,sessionMiddleware)
+// app.use(beforeAllAPI,sessionMiddleware)
 app.get("/",
     (req, res) => {
       res.statusCode = 200;
@@ -72,6 +74,14 @@ app.post('/accessibledepartments', updateDeptToUser)
 app.get('/accessibledepartments', getAccessibleDeptListAPI)
 app.get('/accessibledepartments/:departmentId', getAccessibleDeptListAPI)
 
+
+
+app.get(commonAPIStr+'/movies', getMovieListAPI)
+app.get(commonAPIStr+'/movies/counts', countMovieAPI)
+app.post(commonAPIStr+'/movies', createMovieAPI)
+app.put(commonAPIStr+'/movies/:movieId', updateMovieAPI)
+app.get(commonAPIStr+'/movies/:movieId', getMovieListAPI)
+app.delete(commonAPIStr+'/movies/:movieId', deleteMovieAPI)
 
 app.post('/createAccount', createAccountAPI)
 

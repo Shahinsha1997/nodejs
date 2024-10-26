@@ -1,3 +1,4 @@
+import { getCurrentDate } from "../databaseActions/movDetailAction.mjs";
 import { HR_IN_MS, MAX_SESSION_LIMIT, MAX_SESSION_TIME } from "./tableDetails.mjs";
 
 export const convertResAsStr =(obj) =>{
@@ -69,6 +70,10 @@ export const ERROR_MESSAGES = {
     'MAX_USER_REACHED': {
         status:400,
         message: 'Maximum allowed users created.'
+    },
+    'MOVIE_EXIST': {
+        status: 409,
+        message: 'Movie Exist'
     }
 };
 export const SUCCESS_MESSAGES = {
@@ -87,7 +92,11 @@ export const SUCCESS_MESSAGES = {
     DEPARTMENT_UPDATED: 'Department updated successfully',
     DEPT_ACCESS_GRANTED: 'Department access updated successfully',
     SESSION_DELETED: 'Session revoked successfully',
-    LOGOUT_SUCCESS: 'Logout successfully'
+    LOGOUT_SUCCESS: 'Logout successfully',
+    MOVIE_NOT_CREATED : "Movie doesn't Added properly",
+    MOVIE_CREATED : 'Movie added successfully',
+    MOVIE_NOT_UPDATED : "Movie doesn't updated properly",
+    MOVIE_UPDATED : 'Movie updated successfully',
 }
 
 
@@ -98,10 +107,10 @@ export const sendResponse = (res, obj=ERROR_MESSAGES['INTERNAL_SERVER_ERROR'])=>
 }
 
 export const parseFromLimit = (obj)=>{
-    let { from, limit=50 } = obj;
+    let { from=0, limit=50, sortField="ID", sortOrder='DESC', searchStr } = obj;
     limit = parseInt(limit) > 50 ? 50 : limit;
     const to = parseInt(from) + parseInt(limit);
-    return { from, to};
+    return { from, to, sortField, sortOrder, searchStr};
 }
 const permissionArr = [
     'viewAdminPanel',
@@ -175,3 +184,13 @@ export const structureSessionObj = (arr=[])=>{
     })
     return result;
 }
+
+export const structureMovObj = (arr=[])=>{
+    const result = [];
+    arr.map(movObj=>{
+        const { id, movie_id, actor_name, added_date, image_link, download_link, subtitle_link, rating, release_date } = movObj;
+        result.push({mvId: id, name: movie_id, actName: actor_name, date: getCurrentDate(added_date,true), imageLink: image_link, downloadLink: download_link, subLink: subtitle_link, rating, releaseDate: getCurrentDate(release_date,true)})
+    })
+    return result;
+}
+export const getRating = (val) => val > 5 ? 5 : val < 0 ? 0 : val;

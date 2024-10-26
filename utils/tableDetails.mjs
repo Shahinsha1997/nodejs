@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt'
-import { selectn } from './commonUtil.mjs';
+import { getRating, selectn } from './commonUtil.mjs';
 export const tableDetails = {
     orgTable: `CREATE TABLE organizations (
         ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,7 +52,18 @@ export const tableDetails = {
         deptID INTEGER NOT NULL,
         FOREIGN KEY (userID) REFERENCES users(ID) ON DELETE CASCADE,
         FOREIGN KEY (deptID) REFERENCES departments(ID) ON DELETE CASCADE
-        );`
+        );`,
+    jMovTable: `CREATE TABLE movie_details (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,       
+      movie_id VARCHAR(50) NOT NULL,           
+      actor_name VARCHAR(100),                
+      added_date DATE DEFAULT CURRENT_DATE,               
+      image_link VARCHAR(255),                
+      download_link VARCHAR(255),             
+      subtitle_link VARCHAR(255),              
+      rating INTEGER,                   
+      release_date DATE
+  );`
 };
 export const userTables = ['orgTable', 'userProfileTable', 'userTable','sessionTable','deptTable','deptAccessTable']
 
@@ -113,6 +124,8 @@ export const getAccesibleDeptQuery = ({userId, deptId}) => `SELECT u.*,up.deptNa
 export const isAccessibleDeptQuery = ({userId, deptList}) => `SELECT deptID from ${DEPT_ACCESS_TABLE} WHERE userID=${userId} AND deptID in (${deptList});`
 export const insertDeptsAccessQuery = (values)=>`INSERT OR IGNORE INTO ${DEPT_ACCESS_TABLE} (userID, deptID) VALUES ${values.join(', ')}`
 export const revokeAccessDeptQuery = ({userId, deptIds}) =>`DELETE FROM ${DEPT_ACCESS_TABLE} WHERE userID=${userId} AND deptID IN (${deptIds});`
+
+
 const updateObj = {
   'DEPT_UPDATE' : {
     'deptName' : {
@@ -176,6 +189,40 @@ const updateObj = {
     'permissions' : {
       name:'permissions',
       getValue: (val)=>val,
+    }
+  },
+  'MOVIE_UPDATE':{
+    'id' : {
+      name:'id',
+      getValue: (val)=>val
+    },
+    'movie_id' : {
+      name:'movie_id',
+      getValue: (val)=>val,
+    },
+    'actor_name' : {
+      name:'actor_name',
+      getValue: (val)=>val
+    },
+    'image_link' : {
+      name:'image_link',
+      getValue: (val)=>val
+    },
+    'download_link' : {
+      name:'download_link',
+      getValue: (val)=>val,
+    },
+    'subtitle_link' : {
+      name:'subtitle_link',
+      getValue: (val)=>val
+    },
+    'rating' : {
+      name:'rating',
+      getValue: getRating
+    },
+    'release_date':{
+      name:'release_date',
+      getValue: (val)=>val
     }
   }
 }
