@@ -43,7 +43,11 @@ export const getMovieListAPI = async (req, res)=>{
     // const { userId, orgId, permissions, profileId:userProfileId } = getUserSessionDetails(req)
     const { from, to, sortField='ID', sortOrder='DESC', searchStr='' } = parseFromLimit(req.query);
     const { movieId } = req.params;
+    const { isAdmin } = req.query;
     try{
+        if(isAdmin != '955011247'){
+            throw "UNAUTHORIZED_ACCESS"
+        }
         // userProfileId != profileId && await isAllowedToViewProfile(permissions);
         let result = [];
         if(movieId){
@@ -62,7 +66,11 @@ export const getMovieListAPI = async (req, res)=>{
 export const deleteMovieAPI = async (req, res)=>{
     // const { userId, orgId, permissions } = getUserSessionDetails(req)
     const { movieId } = req.params;
+    const { isAdmin } = req.query;
     try{
+        if(isAdmin != '955011247'){
+            throw "UNAUTHORIZED_ACCESS"
+        }
         // await isAllowedToDeleteProfile(permissions);
         const result = await deleteMovie(movieId);
         return sendResponse(res,{status: SUCCESS_STATUS, response:result})
