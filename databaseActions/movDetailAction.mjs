@@ -1,5 +1,5 @@
 import { getRating } from "../utils/commonUtil.mjs";
-import { getJMovDB } from "../utils/dbUtils.mjs";
+import { getJMovAcc, getJMovDB } from "../utils/dbUtils.mjs";
 import { deleteMovieQuery, getMovieByMovIdQuery, getMovieCountQuery, getMovieListQuery, getMovieQuery, insertMovieQuery, updateMovieQuery } from "../utils/movTableDetails.mjs";
 
 
@@ -46,7 +46,6 @@ export const movieCounts = async ()=>{
     const result = await movDBQueries(getMovieCountQuery())
     return result;
 }
-
 export function getCurrentDate(date='', isNormalFormat) {
     date = date ? new Date(date) : new Date();
 

@@ -20,7 +20,6 @@ export const insertMovieQuery = ({movie_id, actor_name, added_date, image_link, 
 VALUES ('${movie_id}', '${actor_name}', '${added_date}', '${image_link}', '${download_link}', '${subtitle_link}', '${rating}', '${release_date}')`
 export const updateMovieQuery = ({id, values}) => `UPDATE ${MOVIE_TABLE} SET ${values} WHERE ID = '${id}'`
 export const deleteMovieQuery = (id) => `DELETE FROM ${MOVIE_TABLE} WHERE ID='${id}';`;
-
 //Count Queries
 
 // export const getTodayMovieQuery = ()=> `SELECT * FROM ${MOVIE_TABLE} WHERE release_date = '${getCurrentDate()}';`;

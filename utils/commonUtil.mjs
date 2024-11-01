@@ -97,6 +97,12 @@ export const SUCCESS_MESSAGES = {
     MOVIE_CREATED : 'Movie added successfully',
     MOVIE_NOT_UPDATED : "Movie doesn't updated properly",
     MOVIE_UPDATED : 'Movie updated successfully',
+    RECORD_CREATED: 'Record Created Successfully',
+    RECORD_UPDATE: 'Record Updated Successfully',
+    RECORD_DELETE: 'Record Deleted Successfully',
+    RECORD_NOT_CREATED: "Record doesn't Created properly",
+    RECORD_NOT_UPDATE: "Record doesn't Updated properly",
+    RECORD_NOT_DELETE: "Record doesn'tDeleted properly",
 }
 
 
@@ -107,10 +113,19 @@ export const sendResponse = (res, obj=ERROR_MESSAGES['INTERNAL_SERVER_ERROR'])=>
 }
 
 export const parseFromLimit = (obj)=>{
-    let { from=0, limit=50, sortField="ID", sortOrder='DESC', searchStr } = obj;
+    let { 
+        from=0, 
+        limit=50, 
+        sortField="ID", 
+        sortOrder='DESC', 
+        searchStr, 
+        timeFrom, 
+        timeTo,
+        searchField
+    } = obj;
     limit = parseInt(limit) > 50 ? 50 : limit;
     const to = parseInt(from) + parseInt(limit);
-    return { from, to, sortField, sortOrder, searchStr};
+    return { from, to, sortField, sortOrder, searchStr, timeFrom, timeTo, searchField};
 }
 const permissionArr = [
     'viewAdminPanel',
@@ -193,4 +208,54 @@ export const structureMovObj = (arr=[])=>{
     })
     return result;
 }
+
+export const structureLabObj = (arr=[])=>{
+    const result = [];
+    arr.map(movObj=>{
+        const { id, added_time,modified_time,patientId,name, mobile_number, doctor_name, status, work,total_amount, paid_amount, due_amount, discount,comments } = movObj;
+        result.push({uuid:id, time: added_time,modifiedTime:modified_time,patientId,name, mobileNumber:mobile_number, drName:doctor_name, status, description:work,totalAmount:total_amount, paidAmount:paid_amount, dueAmount:due_amount, discount,comments})
+    })
+    return result;
+}
+
+export const structureTestObj = (arr=[])=>{
+    const result = [];
+    arr.map(movObj=>{
+        const { ID, testAmount, testName } = movObj;
+        result.push({testId:ID, testName, testAmount})
+    })
+    return result;
+}
+export const structureDashboardObj = (obj) =>{
+    return obj.rows?.[0] || {}
+
+}
+export const structureDocObj = (obj) =>{
+    return obj.map(drObj=>drObj.drName);
+
+}
+
+export const structureUsageObj = (obj={})=>{
+   return obj?.usage || {}
+}
+
 export const getRating = (val) => val > 5 ? 5 : val < 0 ? 0 : val;
+
+
+export const getNeededDatas = (type, reqObj)=>{
+    const obj ={
+        'LAB_CREATE' : {
+            fields:['time', 'modifiedTime','patientId','name', 'mobileNumber', 'drName', 'status', 'description','totalAmount', 'paidAmount', 'dueAmount', 'discount','comments'],
+            renameFields:['added_time', 'modified_time','patientId','name', 'mobile_number', 'doctor_name', 'status', 'work','total_amount', 'paid_amount', 'due_amount', 'discount','comments']
+        },
+        'LAB_UPDATE' : {
+            fields:['uuid','time', 'modifiedTime','patientId','name', 'mobileNumber', 'drName', 'status', 'description','totalAmount', 'paidAmount', 'dueAmount', 'discount','comments'],
+            renameFields:['id','added_time', 'modified_time','patientId','name', 'mobile_number', 'doctor_name', 'status', 'work','total_amount', 'paid_amount', 'due_amount', 'discount','comments']
+        }
+    }
+  const {fields, renameFields} = obj[type];
+  const reconstructObj = {};
+
+  fields.map((field, index)=>reconstructObj[renameFields[index]] = reqObj[field])
+  return reconstructObj;
+}

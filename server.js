@@ -5,6 +5,7 @@ import session from 'express-session'
 import cors from 'cors'
 import { addUserAPI, beforeAllAPI, createAccountAPI, createDepartmentAPI, createOrgAPI, createProfileAPI, createUserTablesAPI, deleteDepartmentAPI, deleteProfileAPI, deleteSessionDetailsAPI, getAccessibleDeptListAPI, getDepartmentListAPI, getOrgAPI, getProfileListAPI, getSessionDetailsAPI, getUsersListAPI, isValidSession, login, logout, updateDepartmentAPI, updateDeptToUser, updateOrgAPI, updateUserAPI } from './userApiActions.mjs';
 import { countMovieAPI, createMovieAPI, deleteMovieAPI, getMovieListAPI, updateMovieAPI } from './movieApiActions.mjs';
+import { createDocRecordAPI, createLabRecordAPI, createTestRecordAPI, deleteLabRecordAPI, deleteTestRecordAPI, getDBUsageStatsAPI, getDashboardAPI, getDocRecordListAPI, getDueAlarmAPI, getLabRecordListAPI, getProfitByDocAPI, getTestRecordListAPI, updateLabRecordAPI, updateTestRecordAPI } from './APIActions/labApiActions.mjs';
 const port = process.env.PORT || 8443
 const commonAPIStr = '/api/v1'
 const sessionMiddleware = session({
@@ -82,6 +83,27 @@ app.post(commonAPIStr+'/movies', createMovieAPI)
 app.put(commonAPIStr+'/movies/:movieId', updateMovieAPI)
 app.get(commonAPIStr+'/movies/:movieId', getMovieListAPI)
 app.delete(commonAPIStr+'/movies/:movieId', deleteMovieAPI)
+
+
+app.get(commonAPIStr+'/labRecord', getLabRecordListAPI)
+app.post(commonAPIStr+'/labRecord', createLabRecordAPI)
+app.put(commonAPIStr+'/labRecord/:recordId', updateLabRecordAPI)
+// app.get(commonAPIStr+'/labRecord/:movieId', getMovieListAPI)
+app.delete(commonAPIStr+'/labRecord/:recordId', deleteLabRecordAPI)
+app.get(commonAPIStr+'/dashboard', getDashboardAPI)
+app.get(commonAPIStr+'/lab/apiusage', getDBUsageStatsAPI)
+app.get(commonAPIStr+'/profitByDoc', getProfitByDocAPI)
+app.get(commonAPIStr+'/dueDatas', getDueAlarmAPI)
+
+app.get(commonAPIStr+'/doctor', getDocRecordListAPI)
+app.post(commonAPIStr+'/doctor', createDocRecordAPI)
+
+
+app.get(commonAPIStr+'/testRecord', getTestRecordListAPI)
+app.post(commonAPIStr+'/testRecord', createTestRecordAPI)
+app.put(commonAPIStr+'/testRecord/:recordId', updateTestRecordAPI)
+// app.get(commonAPIStr+'/labRecord/:movieId', getMovieListAPI)
+app.delete(commonAPIStr+'/testRecord/:recordId', deleteTestRecordAPI)
 
 app.post('/createAccount', createAccountAPI)
 

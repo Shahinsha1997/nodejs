@@ -53,17 +53,42 @@ export const tableDetails = {
         FOREIGN KEY (userID) REFERENCES users(ID) ON DELETE CASCADE,
         FOREIGN KEY (deptID) REFERENCES departments(ID) ON DELETE CASCADE
         );`,
-    jMovTable: `CREATE TABLE movie_details (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,       
-      movie_id VARCHAR(50) NOT NULL,           
-      actor_name VARCHAR(100),                
-      added_date DATE DEFAULT CURRENT_DATE,               
-      image_link VARCHAR(255),                
-      download_link VARCHAR(255),             
-      subtitle_link VARCHAR(255),              
-      rating INTEGER,                   
-      release_date DATE
-  );`
+  //   jMovTable: `CREATE TABLE movie_details (
+  //     id INTEGER PRIMARY KEY AUTOINCREMENT,       
+  //     movie_id VARCHAR(50) NOT NULL,           
+  //     actor_name VARCHAR(100),                
+  //     added_date DATE DEFAULT CURRENT_DATE,               
+  //     image_link VARCHAR(255),                
+  //     download_link VARCHAR(255),             
+  //     subtitle_link VARCHAR(255),              
+  //     rating INTEGER,                   
+  //     release_date DATE
+  // );`,
+      labDetails: `CREATE TABLE labDetails (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        added_time BIGINT,
+        modified_time BIGINT,
+        patientId INTEGER,
+        name TEXT,
+        mobile_number TEXT,
+        doctor_name TEXT,
+        status TEXT,
+        work TEXT,
+        total_amount INTEGER,
+        paid_amount INTEGER,
+        due_amount INTEGER,
+        discount INTEGER,
+        comments TEXT
+    );`,
+    testDetails: `CREATE TABLE testDetails (
+        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+        testName INTEGER,
+        testAmount INTEGER
+    );`,
+    drDetails: `CREATE TABLE drDetails (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      drName VARCHAR(255) NOT NULL
+    );`
 };
 export const userTables = ['orgTable', 'userProfileTable', 'userTable','sessionTable','deptTable','deptAccessTable']
 
@@ -222,6 +247,78 @@ const updateObj = {
     },
     'release_date':{
       name:'release_date',
+      getValue: (val)=>val
+    }
+  },
+  'LAB_UPDATE' : {
+    'id' : {
+      name:'id',
+      getValue: (val)=>val
+    },
+    'patientId' : {
+      name:'patientId',
+      getValue: (val)=>val,
+    },
+    'added_time' : {
+      name:'added_time',
+      getValue: (val)=>val
+    },
+    'modified_time' : {
+      name:'modified_time',
+      getValue: (val)=>Date.now()
+    },
+    'name' : {
+      name:'name',
+      getValue: (val)=>val,
+    },
+    'mobile_number' : {
+      name:'mobile_number',
+      getValue: (val)=>val
+    },
+    'doctor_name' : {
+      name:'doctor_name',
+      getValue: (val)=>val
+    },
+    'status':{
+      name:'status',
+      getValue: (val)=>val
+    },
+    'work' : {
+      name:'work',
+      getValue: (val)=>val
+    },
+    'total_amount':{
+      name:'total_amount',
+      getValue: (val)=>val
+    },
+    'paid_amount':{
+      name:'paid_amount',
+      getValue: (val)=>val
+    },
+    'due_amount':{
+      name:'due_amount',
+      getValue: (val)=>val
+    },
+    'discount':{
+      name:'discount',
+      getValue: (val)=>val
+    },
+    'comments':{
+      name:'comments',
+      getValue: (val)=>val
+    }
+  },
+  'TEST_UPDATE' : {
+    'id' : {
+      name:'id',
+      getValue: (val)=>val
+    },
+    'testName' : {
+      name:'testName',
+      getValue: (val)=>val,
+    },
+    'testAmount' : {
+      name:'testAmount',
       getValue: (val)=>val
     }
   }
