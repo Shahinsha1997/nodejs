@@ -1,5 +1,11 @@
-import { getCurrentDate } from "../databaseActions/movDetailAction.mjs";
+import { getCurrentDate } from "./movTableDetails.mjs";
 import { HR_IN_MS, MAX_SESSION_LIMIT, MAX_SESSION_TIME } from "./tableDetails.mjs";
+
+export const MOVIE_DB = 'MOVIE_DB';
+export const MED_DB = 'MED_DB';
+export const LAB_DB = 'LAB_DB';
+export const USER_DB = 'USER_DB'
+export const MOV_ACC = 'javmov'
 
 export const convertResAsStr =(obj) =>{
     return JSON.stringify(obj);

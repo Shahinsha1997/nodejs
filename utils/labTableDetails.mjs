@@ -1,4 +1,4 @@
-import { getCurrentDate } from "../databaseActions/movDetailAction.mjs"
+
 const ALL = 'all_movies'
 const TODAY = 'today';
 const THIS_WEEK = 'thisWeek'
@@ -10,7 +10,7 @@ const ONE_DAY_IN_MS = 24*60*60*1000
 const LAB_TABLE = 'labDetails'
 // export const getIdByMovId = (movie_id)=> `SELECT ID from ${LAB_TABLE} WHERE movie_id='${movie_id}' `
 
-const getQueryCondition = ({ searchStr, searchField,timeFrom, timeTo, isAdmin, filterType }) => {
+const getQueryCondition = ({ searchStr, searchField,timeFrom, timeTo, isAdmin, filterType, id }) => {
     const conditions = [];
     let groupByPart = ''
     if (!isAdmin) {
@@ -24,12 +24,14 @@ const getQueryCondition = ({ searchStr, searchField,timeFrom, timeTo, isAdmin, f
     if (timeFrom && timeTo) {
       conditions.push(`added_time BETWEEN ${timeFrom} AND ${timeTo}`);
     }
-  
+    if(id){
+      conditions.push(`ID = ${id}`)
+    }
     const conditionPart = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   
     return conditionPart + groupByPart;
   };
-  
+export const getLabRecordQuery = (id, isAdmin) =>`SELECT * from ${LAB_TABLE} ${getQueryCondition({id, isAdmin})}`  
 export const getLabRecordListQuery = 
     ({sortField,searchField, sortOrder, from, to, searchStr, timeFrom, timeTo, isAdmin, filterType}) => 
         `SELECT  * from ${LAB_TABLE}

@@ -1,4 +1,4 @@
-import { createDocRecord, createLabRecord, createTestRecord, deleteLabRecord, deleteTestRecord, getDBUsageStat, getDocRecordList, getDueAlarmDatas, getLabDashboard, getLabRecordList, getProfitByDoc, getTestRecordList, updateLabRecord, updateTestRecord } from "../databaseActions/labDetailAction.mjs";
+import { createDocRecord, createLabRecord, createTestRecord, deleteLabRecord, deleteTestRecord, getDBUsageStat, getDocRecordList, getDueAlarmDatas, getLabDashboard, getLabRecord, getLabRecordList, getProfitByDoc, getTestRecordList, updateLabRecord, updateTestRecord } from "../databaseActions/labDetailAction.mjs";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES, SUCCESS_STATUS, getNeededDatas, parseFromLimit, sendResponse, structureDashboardObj, structureDocObj, structureLabObj, structureTestObj, structureUsageObj } from "../utils/commonUtil.mjs";
 import { getUpdateValues } from "../utils/tableDetails.mjs";
 
@@ -53,14 +53,11 @@ export const getLabRecordListAPI = async (req, res)=>{
     try{
         // userProfileId != profileId && await isAllowedToViewProfile(permissions);
         let result = [];
-        // if(recordId){
-        //     result = await getMovie(recordId);
-            // const userObj = selectn('session.userObj',req) || {};
-            // userObj.permissions = result.permissions;
-        // }else{
-
+        if(recordId){
+            result = await getLabRecord(recordId,isAdmin);
+        }else{
             result = await getLabRecordList({searchField, timeFrom, timeTo, sortField, sortOrder: sortOrder, from, to, searchStr, isAdmin });
-        // }
+        }
         return sendResponse(res,{status: SUCCESS_STATUS, response:structureLabObj(result)})
     }catch(error){
         console.log(error)

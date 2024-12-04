@@ -4,7 +4,7 @@ import { createWebSocket } from './websocket/websocketconfig.mjs';
 import session from 'express-session'
 import cors from 'cors'
 import { addUserAPI, beforeAllAPI, createAccountAPI, createDepartmentAPI, createOrgAPI, createProfileAPI, createUserTablesAPI, deleteDepartmentAPI, deleteProfileAPI, deleteSessionDetailsAPI, getAccessibleDeptListAPI, getDepartmentListAPI, getOrgAPI, getProfileListAPI, getSessionDetailsAPI, getUsersListAPI, isValidSession, login, logout, updateDepartmentAPI, updateDeptToUser, updateOrgAPI, updateUserAPI } from './userApiActions.mjs';
-import { countMovieAPI, createMovieAPI, deleteMovieAPI, getMovieListAPI, updateMovieAPI } from './movieApiActions.mjs';
+import { countMovieAPI, createMovieAPI, deleteMovieAPI, getMovUsageStatsAPI, getMovieListAPI, updateMovieAPI } from './movieApiActions.mjs';
 import { createDocRecordAPI, createLabRecordAPI, createTestRecordAPI, deleteLabRecordAPI, deleteTestRecordAPI, getDBUsageStatsAPI, getDashboardAPI, getDocRecordListAPI, getDueAlarmAPI, getLabRecordListAPI, getProfitByDocAPI, getTestRecordListAPI, updateLabRecordAPI, updateTestRecordAPI } from './APIActions/labApiActions.mjs';
 const port = process.env.PORT || 8443
 const commonAPIStr = '/api/v1'
@@ -77,6 +77,7 @@ app.get('/accessibledepartments/:departmentId', getAccessibleDeptListAPI)
 
 
 
+app.get(commonAPIStr+'/movies/apiusage', getMovUsageStatsAPI)
 app.get(commonAPIStr+'/movies', getMovieListAPI)
 app.get(commonAPIStr+'/movies/counts', countMovieAPI)
 app.post(commonAPIStr+'/movies', createMovieAPI)
@@ -84,11 +85,10 @@ app.put(commonAPIStr+'/movies/:movieId', updateMovieAPI)
 app.get(commonAPIStr+'/movies/:movieId', getMovieListAPI)
 app.delete(commonAPIStr+'/movies/:movieId', deleteMovieAPI)
 
-
 app.get(commonAPIStr+'/labRecord', getLabRecordListAPI)
 app.post(commonAPIStr+'/labRecord', createLabRecordAPI)
 app.put(commonAPIStr+'/labRecord/:recordId', updateLabRecordAPI)
-// app.get(commonAPIStr+'/labRecord/:movieId', getMovieListAPI)
+app.get(commonAPIStr+'/labRecord/:recordId', getLabRecordListAPI)
 app.delete(commonAPIStr+'/labRecord/:recordId', deleteLabRecordAPI)
 app.get(commonAPIStr+'/dashboard', getDashboardAPI)
 app.get(commonAPIStr+'/lab/apiusage', getDBUsageStatsAPI)

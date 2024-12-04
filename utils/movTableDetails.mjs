@@ -1,4 +1,3 @@
-import { getCurrentDate } from "../databaseActions/movDetailAction.mjs"
 const ALL = 'all_movies'
 const TODAY = 'today';
 const THIS_WEEK = 'thisWeek'
@@ -27,7 +26,7 @@ export const deleteMovieQuery = (id) => `DELETE FROM ${MOVIE_TABLE} WHERE ID='${
 // export const getNextWeekMovieQuery = ()=> `SELECT * FROM ${MOVIE_TABLE} WHERE release_date ${getByDatas('nextWeek')}`
 // export const getOtherMovieQuery = ()=> `SELECT * FROM ${MOVIE_TABLE} WHERE release_date ${getByDatas('otherReleases')}`
 
-const getByDatas = (type)=>{
+export const getByDatas = (type)=>{
     const dayInMs = 86400000
     let today = new Date()
     let startTime = today.setHours(0,0,0,0);
@@ -57,4 +56,14 @@ const thisWeekMovieQuery = `COUNT(CASE WHEN release_date ${getByDatas(THIS_WEEK)
 const nextWeekMovieQuery = `COUNT(CASE WHEN release_date ${getByDatas(NEXT_WEEK)} THEN 1 END) AS ${NEXT_WEEK}`;
 const otherMovieQuery = `COUNT(CASE WHEN release_date ${getByDatas(OTHER_RELEASE)} THEN 1 END) AS ${OTHER_RELEASE}`;
 
-export const getMovieCountQuery = ()=>`SELECT ${allMovieQuery},${todayMovieQuery},${thisWeekMovieQuery},${nextWeekMovieQuery},${otherMovieQuery} FROM ${MOVIE_TABLE};`
+export const getMovieCountFields = ()=> `${allMovieQuery},${todayMovieQuery},${thisWeekMovieQuery},${nextWeekMovieQuery},${otherMovieQuery}`.split(',')
+export function getCurrentDate(date='', isNormalFormat) {
+    date = date ? new Date(date) : new Date();
+
+    // Get year, month, and day
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');  // Months are 0-based, so we add 1
+    const day = String(date.getDate()).padStart(2, '0');         // Pad day with leading zero
+
+    return isNormalFormat ? `${day}-${month}-${year}` : `${year}-${month}-${day}`;
+}

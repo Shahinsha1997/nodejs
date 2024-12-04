@@ -1,7 +1,6 @@
-import { getRating } from "../utils/commonUtil.mjs";
+
 import { getLabManagementAcc, getLabManagementDB } from "../utils/dbUtils.mjs";
-import { deleteLabRecordQuery, deleteTestRecordQuery, dueAlarmQuery, getDashboardQuery, getDocRecordListQuery, getLabRecordListQuery, getTestRecordListQuery, insertDocRecordQuery, insertLabRecordQuery, insertTestRecordQuery, profitByDocQuery, updateLabRecordQuery, updateTestRecordQuery } from "../utils/labTableDetails.mjs";
-import { getMovieByMovIdQuery, getMovieCountQuery, getMovieListQuery, getMovieQuery, insertMovieQuery, updateMovieQuery } from "../utils/movTableDetails.mjs";
+import { deleteLabRecordQuery, deleteTestRecordQuery, dueAlarmQuery, getDashboardQuery, getDocRecordListQuery, getLabRecordListQuery, getLabRecordQuery, getTestRecordListQuery, insertDocRecordQuery, insertLabRecordQuery, insertTestRecordQuery, profitByDocQuery, updateLabRecordQuery, updateTestRecordQuery } from "../utils/labTableDetails.mjs";
 
 
 const labDBQueries = async (query)=>{
@@ -19,10 +18,6 @@ const labDBBatchQueries = async (queries) =>{
     return result;
 }
 
-export const isMovExist = async (id) =>{
-    const result = await labDBQueries(getMovieByMovIdQuery(id));
-    return result.rows;
-}
 export const createLabRecord = async ({added_time=Date.now(),modified_time=Date.now(),patientId,name, mobile_number, doctor_name, status, work,total_amount, paid_amount, due_amount, discount,comments})=>{
     const result = await labDBQueries(insertLabRecordQuery({added_time,modified_time,patientId,name, mobile_number, doctor_name, status, work,total_amount, paid_amount, due_amount, discount,comments}));
     return result.lastInsertRowid;
@@ -35,22 +30,22 @@ export const getLabRecordList = async ({sortField, searchField, sortOrder, from,
     const result = await labDBQueries(getLabRecordListQuery({searchField, sortField, sortOrder, from, to, searchStr, timeFrom, timeTo, isAdmin}));
     return result.rows;
 }
+export const getLabRecord = async(id, isAdmin) =>{
+    const result = await  labDBQueries(getLabRecordQuery(id, isAdmin));
+    return result.rows;
+}
 export const getDueAlarmDatas = async(from) =>{
     const result = await labDBQueries(dueAlarmQuery(from));
     return result.rows;
     
 }
-// export const getLabRecord = async (id) =>{
-//     const result = await labDBQueries(getMovieByMovIdQuery(id));
-//     return result.rows;
-// }
 export const deleteLabRecord = async (id)=>{
     const result = await labDBQueries(deleteLabRecordQuery(id));
     return result.rows;
 }
 export const labRecordCounts = async ()=>{
-    const result = await labDBQueries(getMovieCountQuery())
-    return result;
+    // const result = await labDBQueries(getMovieCountQuery())
+    // return result;
 }
 export const getLabDashboard = async ({timeFrom, timeTo, isAdmin})=>{
     const result = await labDBQueries(getDashboardQuery({timeFrom, timeTo, isAdmin}))
@@ -86,10 +81,6 @@ export const getTestRecordList = async ({sortField, sortOrder, from, to, searchS
     const result = await labDBQueries(getTestRecordListQuery({sortField, sortOrder, from, to, searchStr}));
     return result.rows;
 }
-// export const getLabRecord = async (id) =>{
-//     const result = await labDBQueries(getMovieByMovIdQuery(id));
-//     return result.rows;
-// }
 export const deleteTestRecord = async (id)=>{
     const result = await labDBQueries(deleteTestRecordQuery(id));
     return result.rows;
